@@ -10,9 +10,19 @@
     "scripting"
   ],
   "action": {
+    "default_icon": {
+      "128": "icon-128.png",
+      "48": "icon-48.png",
+      "32": "icon-32.png"
+    },
     "default_title": "Publish this tab's activity to Discord"
   },
   "background": {
     "service_worker": "background.js"
+  },
+  "icons": {
+    "128": "icon-128.png",
+    "48": "icon-48.png",
+    "32": "icon-32.png"
   }
 }
