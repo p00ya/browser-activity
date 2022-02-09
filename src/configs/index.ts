@@ -15,7 +15,9 @@ const showActionConditions = (
 
 /** Maps the website's hostname to the config options for that website. */
 const hostToConfig: { [host: string]: Config } = (
-  Object.fromEntries(allConfigs.map((c) => [c.host, c]))
+  Object.fromEntries(allConfigs.flatMap(
+    (config) => config.hosts.map((host) => [host, config]),
+  ))
 );
 
 /** Returns the union of all Chrome "rules" for enabling the extension. */

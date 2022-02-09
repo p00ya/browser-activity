@@ -21,9 +21,9 @@ interface ActivityRule {
 
 // Configuration for mapping a particular website to activity states.
 interface Config {
-  // The host for this config.  There must be a 1:1 mapping between configs and
-  // hosts - rules will only be evaluated for configs with matching hosts.
-  host: string;
+  // The host for this config.  Rules will only be evaluated for configs with
+  // matching hosts.  Hosts must not appear in multiple configs.
+  hosts: string[];
 
   // The discord application/client ID.
   discordClientId: string;

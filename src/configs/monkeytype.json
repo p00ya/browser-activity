@@ -1,5 +1,7 @@
 {
-  "host": "monkeytype.com",
+  "hosts": [
+    "monkeytype.com"
+  ],
   "discordClientId": "798272335035498557",
   "showActionConditions": [
     {

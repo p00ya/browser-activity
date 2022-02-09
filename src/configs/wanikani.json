@@ -1,5 +1,7 @@
 {
-  "host": "www.wanikani.com",
+  "hosts": [
+    "www.wanikani.com"
+  ],
   "discordClientId": "800166344023867443",
   "showActionConditions": [
     {
