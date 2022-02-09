@@ -54,6 +54,12 @@ const inject = function injectContentScript(tab: chrome.tabs.Tab) {
 // Update activity when the active tab changes.
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
+  if (tab.url === undefined || tab.id === undefined) {
+    // Clear activity if the focused tab isn't opted-in.
+    activityManager.clearActivity();
+    return;
+  }
+
   inject(tab);
 });
 
