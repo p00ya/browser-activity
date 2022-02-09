@@ -33,6 +33,8 @@ go build ./cmd/chrome-discord-bridge
 
 In Chrome, click the Extensions menu.  If the site on the current tab is supported, the "Browser Activity" item will appear under the "Access requested" section.  Clicking the item will enable activity publishing for the tab until the tab is closed.
 
+You must have the Discord app running on the same machine to publish activity.  Using Discord from a browser window won't work.
+
 ## Differences from PreMiD
 
 Browser Activity's functionality is similar to PreMiD.
