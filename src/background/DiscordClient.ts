@@ -58,6 +58,7 @@ export default class DiscordClient {
     this.#nextResponse = this.makeNextResponse();
 
     this.#port.onMessage.addListener((response) => {
+      console.debug(`Received: ${JSON.stringify(response)}`);
       if (this.#resolveNextResponse !== undefined) {
         this.#resolveNextResponse(response);
       }
@@ -100,6 +101,7 @@ export default class DiscordClient {
     };
 
     const nextResponse = this.#nextResponse;
+    console.debug(`Send: ${JSON.stringify(handshake)}`);
     this.#port.postMessage(handshake);
     return nextResponse;
   }
@@ -122,6 +124,7 @@ export default class DiscordClient {
     };
 
     const nextResponse = this.#nextResponse;
+    console.debug(`Send: ${JSON.stringify(activityFrame)}`);
     this.#port.postMessage(activityFrame);
     return nextResponse;
   }
@@ -136,6 +139,7 @@ export default class DiscordClient {
       return;
     }
 
+    console.debug('Disconnect');
     this.#port.disconnect();
   }
 }
