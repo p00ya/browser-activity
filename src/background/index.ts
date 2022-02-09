@@ -11,16 +11,48 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
     chrome.declarativeContent.onPageChanged.addRules(configs.getShowActionConditions());
   });
+  chrome.action.setBadgeBackgroundColor({ color: '#5865F2' });
 });
+
+const getActiveTab = async function getActiveTab() {
+  const queryOptions = { active: true, currentWindow: true };
+  const [tab] = await chrome.tabs.query(queryOptions);
+  return tab;
+};
+
+const clearActivity = function clearActivity(isEnabled: boolean, tabId: number) {
+  activityManager.clearActivity();
+  chrome.action.setBadgeText({
+    text: isEnabled ? ' ' : '', // empty string clears the badge
+    tabId,
+  });
+};
+
+const setActivity = function setActivity(clientId: string, state: string, tabId: number) {
+  activityManager.setActivity(clientId, state);
+  chrome.action.setBadgeText({
+    text: ':-)',
+    tabId,
+  });
+};
 
 // Expose an API for the content script.
 chrome.runtime.onMessage.addListener(
-  (msg) => {
-    const { clearActivity, setActivity } = msg as ContentRequest;
-    if (clearActivity !== undefined) {
-      activityManager.clearActivity();
-    } else if (setActivity !== undefined) {
-      activityManager.setActivity(setActivity.clientId, setActivity.activityState);
+  async (msg) => {
+    const tab = await getActiveTab();
+    if (tab === undefined || tab.id === undefined) {
+      return;
+    }
+    const {
+      clearActivity: clearActivityMsg,
+      setActivity: setActivityMsg,
+    } = msg as ContentRequest;
+
+    if (clearActivityMsg !== undefined) {
+      clearActivity(true, tab.id);
+    } else if (setActivityMsg !== undefined) {
+      const { clientId, activityState } = setActivityMsg;
+      setActivity(clientId, activityState, tab.id);
     }
   },
 );
@@ -54,9 +86,13 @@ const inject = function injectContentScript(tab: chrome.tabs.Tab) {
 // Update activity when the active tab changes.
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
-  if (tab.url === undefined || tab.id === undefined) {
+  if (tab.id === undefined) {
+    return;
+  }
+
+  if (tab.url === undefined) {
     // Clear activity if the focused tab isn't opted-in.
-    activityManager.clearActivity();
+    clearActivity(false, tab.id);
     return;
   }
 
@@ -79,5 +115,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // Immediately attempt to publish when the user opts-in to publishing for the
 // active tab.
 chrome.action.onClicked.addListener((tab) => {
+  chrome.action.setTitle({
+    tabId: tab.id,
+    title: 'This tab\'s activity is being published to Discord',
+  });
   inject(tab);
 });
