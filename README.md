@@ -20,9 +20,14 @@ yarn start
 
 To load the extension, navigate to chrome://extensions, enable Developer Mode, and click "Load unpacked".  Select the `dist` directory.
 
-Note the extension ID for browser-activity shown in chrome://extensions.
+Note the extension ID for Browser Activity that will now be visible in chrome://extensions.
 
-Now go build and install https://github.com/p00ya/chrome-discord-bridge.  You will need to add the extension ID to `cmd/chrome-discord-bridge/origins.txt`, and to run `install-host` with the `-o chrome-extension://$ID/` option.
+Now go checkout https://github.com/p00ya/chrome-discord-bridge.  You will need to add the extension URL to `cmd/chrome-discord-bridge/origins.txt`, and then run:
+
+```
+go build ./cmd/chrome-discord-bridge
+./chrome-discord-bridge -install
+```
 
 ## Usage
 
