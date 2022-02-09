@@ -1,0 +1,28 @@
+{
+  "env": {
+    "browser": true,
+    "es2020": true,
+    "node": false,
+    "webextensions": true
+  },
+  "extends": [
+    "airbnb-base",
+    "airbnb-typescript/base"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "tsconfig.json",
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-restricted-syntax": [
+      "off",
+      {
+        // We need modern Chrome, might as well allow iterators.
+        "selector": "ForOfStatement"
+      }
+    ],
+    // Prefer continue/break over deep nesting.
+    "no-continue": "off"
+  }
+}

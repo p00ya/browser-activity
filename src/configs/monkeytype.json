@@ -1,0 +1,22 @@
+{
+  "host": "monkeytype.com",
+  "discordClientId": "798272335035498557",
+  "showActionConditions": [
+    {
+      "pageUrl": {
+        "hostEquals": "monkeytype.com",
+        "schemes": [
+          "https"
+        ]
+      }
+    }
+  ],
+  "activityRules": [
+    {
+      "activityStateFromId": "premidTestMode",
+      "pageUrl": {
+        "urlEquals": "https://monkeytype.com/"
+      }
+    }
+  ]
+}

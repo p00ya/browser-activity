@@ -1,0 +1,28 @@
+{
+  "host": "www.wanikani.com",
+  "discordClientId": "800166344023867443",
+  "showActionConditions": [
+    {
+      "pageUrl": {
+        "hostEquals": "www.wanikani.com",
+        "schemes": [
+          "https"
+        ]
+      }
+    }
+  ],
+  "activityRules": [
+    {
+      "activityStateLiteral": "Doing reviews",
+      "pageUrl": {
+        "urlEquals": "https://www.wanikani.com/review/session"
+      }
+    },
+    {
+      "activityStateLiteral": "Doing lessons",
+      "pageUrl": {
+        "urlEquals": "https://www.wanikani.com/lesson/session"
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "index.d.ts",
+      "node_modules/@types"
+    ],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+  }
+}
