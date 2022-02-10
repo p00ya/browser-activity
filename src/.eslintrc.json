@@ -18,13 +18,10 @@
     "no-restricted-syntax": [
       "off",
       {
-        // We need modern Chrome, might as well allow iterators.
         "selector": "ForOfStatement"
       }
     ],
-    // Webpack strips console.log etc. from production builds.
     "no-console": "off",
-    // Prefer continue/break over deep nesting.
     "no-continue": "off"
   }
 }
