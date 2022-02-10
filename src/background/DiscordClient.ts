@@ -141,5 +141,6 @@ export default class DiscordClient {
 
     console.debug('Disconnect');
     this.#port.disconnect();
+    this.connected = false;
   }
 }

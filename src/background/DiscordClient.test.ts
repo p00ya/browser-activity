@@ -32,4 +32,9 @@ describe('DiscordClient', () => {
     client.disconnect();
     expect(mockPort.disconnect).toHaveBeenCalledTimes(1);
   });
+
+  it('disconnect is idempotent', () => {
+    client.disconnect();
+    expect(mockPort.disconnect).toHaveBeenCalledTimes(1);
+  });
 });
