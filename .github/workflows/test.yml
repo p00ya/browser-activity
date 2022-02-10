@@ -5,7 +5,7 @@ on:
     # Weekly on Saturdays at 15:10.
     - cron: '10 15 * * 6'
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -21,3 +21,5 @@ jobs:
       run: yarn build
     - name: lint
       run: yarn lint
+    - name: test
+      run: yarn test
