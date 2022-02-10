@@ -14,12 +14,6 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.action.setBadgeBackgroundColor({ color: '#5865F2' });
 });
 
-const getActiveTab = async function getActiveTab() {
-  const queryOptions = { active: true, currentWindow: true };
-  const [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
-};
-
 const clearActivity = function clearActivity(isEnabled: boolean, tabId: number) {
   activityManager.clearActivity();
   chrome.action.setBadgeText({
@@ -37,25 +31,22 @@ const setActivity = function setActivity(clientId: string, state: string, tabId:
 };
 
 // Expose an API for the content script.
-chrome.runtime.onMessage.addListener(
-  async (msg) => {
-    const tab = await getActiveTab();
-    if (tab === undefined || tab.id === undefined) {
-      return;
-    }
-    const {
-      clearActivity: clearActivityMsg,
-      setActivity: setActivityMsg,
-    } = msg as ContentRequest;
+const handleContentRequest = async function handleContentRequest(
+  request: ContentRequest,
+  tab: chrome.tabs.Tab,
+) {
+  const { clearActivity: clearActivityMsg, setActivity: setActivityMsg } = request;
+  if (tab.id === undefined) {
+    return;
+  }
 
-    if (clearActivityMsg !== undefined) {
-      clearActivity(true, tab.id);
-    } else if (setActivityMsg !== undefined) {
-      const { clientId, activityState } = setActivityMsg;
-      setActivity(clientId, activityState, tab.id);
-    }
-  },
-);
+  if (clearActivityMsg !== undefined) {
+    clearActivity(true, tab.id);
+  } else if (setActivityMsg !== undefined) {
+    const { clientId, activityState } = setActivityMsg;
+    setActivity(clientId, activityState, tab.id);
+  }
+};
 
 /**
  * Call the content function for the given tab.
@@ -79,6 +70,12 @@ const inject = function injectContentScript(tab: chrome.tabs.Tab) {
       target: { tabId: tab.id },
       func: content,
       args: [config],
+    },
+    (results) => {
+      const [injectionResult] = results;
+      // Result type is the return type of the content function.
+      const request = injectionResult.result as ContentRequest;
+      handleContentRequest(request, tab);
     },
   );
 };

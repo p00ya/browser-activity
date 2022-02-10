@@ -4,7 +4,7 @@
  * This function should run as a content script for a particular tab.
  * It will send a ContentRequest message to the service worker.
  */
-export default function content(config: Config) {
+export default function content(config: Config): ContentRequest {
   // Note that other declarations in this module won't be bound in this function
   // when it's invoked via chrome.scripting.executeScript, so we must declare
   // helpers inline.
@@ -40,17 +40,16 @@ export default function content(config: Config) {
 
   const activity = getActivity();
   if (activity === null) {
-    const request: ContentRequest = {
+    return {
       clearActivity: {},
     };
-    chrome.runtime.sendMessage(request);
-  } else {
-    const request: ContentRequest = {
-      setActivity: {
-        clientId: config.discordClientId,
-        activityState: activity,
-      },
-    };
-    chrome.runtime.sendMessage(request);
   }
+  return {
+    setActivity: {
+      clientId: config.discordClientId,
+      activityState: activity,
+    },
+  };
+
+  return {};
 }
