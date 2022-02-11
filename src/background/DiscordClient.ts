@@ -22,23 +22,25 @@ interface ActivityFrame {
   nonce: string;
 }
 
+export interface IDiscordClient {
+  readonly clientId: string;
+  connected: boolean;
+  sendHandshake(): Promise<any>;
+  sendActivity(activity: string): Promise<any>;
+  disconnect(): void;
+}
+
 /**
  * An interface for sending specific messages to Discord via
  * chrome-discord-bridge.
  */
-export default class DiscordClient {
+export default class DiscordClient implements IDiscordClient {
   /**
    * A native messaging port connected to chrome-discord-bridge.
    *
    * Set to null if disconnected.
    */
   #port: chrome.runtime.Port;
-
-  /** The client ID used for this Discord connection. */
-  clientId: string;
-
-  /** The activity.state as last confirmed by Discord. */
-  activityState?: string;
 
   connected = false;
 
@@ -51,8 +53,7 @@ export default class DiscordClient {
   /** Rejects the #nextResponse promise. */
   #rejectNextResponse?: (reason: Error) => void;
 
-  constructor(clientId: string) {
-    this.clientId = clientId;
+  constructor(readonly clientId: string) {
     this.#port = chrome.runtime.connectNative(host);
     this.connected = true;
     this.#nextResponse = this.makeNextResponse();
