@@ -1,6 +1,6 @@
 import DiscordClient, { IDiscordClient } from './DiscordClient';
 
-export type ClientFactory = (clientId: string) => IDiscordClient;
+export type ClientFactory = (clientId: string) => Promise<IDiscordClient>;
 
 /** A high-level wrapper for setting and clearing Discord's activity state. */
 export default class ActivityManager {
@@ -9,38 +9,41 @@ export default class ActivityManager {
   #activityState?: string;
 
   /**
-   * @param clientFactory constructs a DiscordClient
+   * @param clientFactory - constructs a DiscordClient
    */
   constructor(
-    private readonly clientFactory: ClientFactory = (clientId) => new DiscordClient(clientId),
+    private readonly clientFactory: ClientFactory = DiscordClient.connect,
   ) { }
 
-  clearActivity() {
+  async clearActivity() {
     this.#activityState = undefined;
-    this.#client?.disconnect();
+    await this.#client?.disconnect();
   }
 
   async setActivity(clientId: string, activity: string) {
-    // Make sure the client is connected with the appropriate clientId.
-    if (!this.#client?.connected) {
-      this.#client = this.clientFactory(clientId);
-      await this.#client.sendHandshake();
-    } else if (this.#client.clientId !== clientId) {
+    if (this.#client?.connected && this.#client.clientId !== clientId) {
       // Since the client ID is established when the connection to Discord is
       // initialized, we must disconnect to change it.
-      this.clearActivity();
+      await this.clearActivity();
+    }
 
-      this.#client = this.clientFactory(clientId);
-      await this.#client.sendHandshake();
+    // Make sure the client is connected with the appropriate clientId.
+    if (!this.#client?.connected) {
+      this.#client = await this.clientFactory(clientId);
+      const { cmd } = await this.#client.sendHandshake();
+      if (cmd !== 'DISPATCH') {
+        console.debug(`Unexpected response; got ${cmd}, wanted 'DISPATCH'`);
+      }
     }
 
     if (this.#activityState === activity) {
       return; // Activity is already set.
     }
 
-    const { cmd, data } = await this.#client.sendActivity(activity);
+    const response = await this.#client.sendActivity(activity);
+    const { cmd, data } = response;
     if (cmd !== 'SET_ACTIVITY') {
-      console.warn(`Unexpected response; got ${cmd}, wanted 'SET_ACTIVITY'`);
+      console.debug(`Unexpected response; got ${cmd}, wanted 'SET_ACTIVITY'`);
       return;
     }
 

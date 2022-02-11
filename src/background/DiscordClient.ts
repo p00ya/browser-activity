@@ -35,13 +35,7 @@ export interface IDiscordClient {
  * chrome-discord-bridge.
  */
 export default class DiscordClient implements IDiscordClient {
-  /**
-   * A native messaging port connected to chrome-discord-bridge.
-   *
-   * Set to null if disconnected.
-   */
-  #port: chrome.runtime.Port;
-
+  /** Whether the native messaging port is connected. */
   connected = false;
 
   /** Resolves to the next JSON payload to be received from Discord. */
@@ -53,19 +47,31 @@ export default class DiscordClient implements IDiscordClient {
   /** Rejects the #nextResponse promise. */
   #rejectNextResponse?: (reason: Error) => void;
 
-  constructor(readonly clientId: string) {
-    this.#port = chrome.runtime.connectNative(host);
+  /** Creates a new client. */
+  static connect(clientId: string): Promise<DiscordClient> {
+    const port = chrome.runtime.connectNative(host);
+    if (chrome.runtime.lastError !== undefined) {
+      return Promise.reject(chrome.runtime.lastError);
+    }
+    return Promise.resolve(new DiscordClient(clientId, port));
+  }
+
+  /**
+   * @param clientId - the Discord client ID
+   * @param port - a native messaging port connected to chrome-discord-bridge
+   */
+  constructor(readonly clientId: string, private readonly port: chrome.runtime.Port) {
     this.connected = true;
     this.#nextResponse = this.makeNextResponse();
 
-    this.#port.onMessage.addListener((response) => {
+    this.port.onMessage.addListener((response) => {
       console.debug(`Received: ${JSON.stringify(response)}`);
       if (this.#resolveNextResponse !== undefined) {
         this.#resolveNextResponse(response);
       }
     });
 
-    this.#port.onDisconnect.addListener(() => {
+    this.port.onDisconnect.addListener(() => {
       if (this.#rejectNextResponse !== undefined) {
         this.#rejectNextResponse(new Error('disconnected'));
       }
@@ -81,12 +87,11 @@ export default class DiscordClient implements IDiscordClient {
       this.#rejectNextResponse = reject;
     });
 
-    nextResponse.then(() => {
+    return nextResponse.then((response) => {
       // Use a new promise for the next response.
       this.#nextResponse = this.makeNextResponse();
+      return response;
     });
-
-    return nextResponse;
   }
 
   /** Sends Discord-IPC's "handshake" message. */
@@ -103,7 +108,7 @@ export default class DiscordClient implements IDiscordClient {
 
     const nextResponse = this.#nextResponse;
     console.debug(`Send: ${JSON.stringify(handshake)}`);
-    this.#port.postMessage(handshake);
+    this.port.postMessage(handshake);
     return nextResponse;
   }
 
@@ -126,7 +131,7 @@ export default class DiscordClient implements IDiscordClient {
 
     const nextResponse = this.#nextResponse;
     console.debug(`Send: ${JSON.stringify(activityFrame)}`);
-    this.#port.postMessage(activityFrame);
+    this.port.postMessage(activityFrame);
     return nextResponse;
   }
 
@@ -141,7 +146,7 @@ export default class DiscordClient implements IDiscordClient {
     }
 
     console.debug('Disconnect');
-    this.#port.disconnect();
+    this.port.disconnect();
     this.connected = false;
   }
 }

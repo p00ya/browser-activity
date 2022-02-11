@@ -7,6 +7,9 @@ import * as configs from '../configs';
 const activityManager = new ActivityManager();
 const configIndex = new configs.ConfigIndex(configs.allConfigs);
 
+const badgeWarningColour = '#ED4245';
+const badgeActiveColour = '#5865F2'; // blurple
+
 // Enable the user to opt-in on supported webpages.
 chrome.runtime.onInstalled.addListener(() => {
   const conditions = configs.getConditions(configs.allConfigs);
@@ -14,22 +17,37 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
     chrome.declarativeContent.onPageChanged.addRules(configs.makeRules(conditions));
   });
-  chrome.action.setBadgeBackgroundColor({ color: '#5865F2' });
 });
 
 const clearActivity = function clearActivity(isEnabled: boolean, tabId: number) {
-  activityManager.clearActivity();
-  chrome.action.setBadgeText({
-    text: isEnabled ? ' ' : '', // empty string clears the badge
-    tabId,
+  activityManager.clearActivity().then(() => {
+    chrome.action.setBadgeBackgroundColor({ color: badgeActiveColour });
+    chrome.action.setBadgeText({
+      text: isEnabled ? ' ' : '', // empty string clears the badge
+      tabId,
+    });
   });
 };
 
 const setActivity = function setActivity(clientId: string, state: string, tabId: number) {
-  activityManager.setActivity(clientId, state);
-  chrome.action.setBadgeText({
-    text: ':-)',
-    tabId,
+  activityManager.setActivity(clientId, state).then(() => {
+    chrome.action.setBadgeText({
+      text: ':-)',
+      tabId,
+    });
+    chrome.action.setBadgeBackgroundColor({ color: badgeActiveColour });
+  }).catch((e) => {
+    console.warn(e);
+    chrome.action.setTitle({
+      title: 'Could not connect to Discord; '
+          + 'check chrome-discord-bridge is installed and Discord is running',
+      tabId,
+    });
+    chrome.action.setBadgeBackgroundColor({ color: badgeWarningColour });
+    chrome.action.setBadgeText({
+      text: ':-(',
+      tabId,
+    });
   });
 };
 
@@ -74,13 +92,16 @@ const inject = function injectContentScript(tab: chrome.tabs.Tab) {
       func: content,
       args: [config],
     },
-    (results) => {
-      const [injectionResult] = results;
-      // Result type is the return type of the content function.
-      const request = injectionResult.result as ContentRequest;
-      handleContentRequest(request, tab);
-    },
-  );
+  ).then((results) => {
+    const [injectionResult] = results;
+    // Result type is the return type of the content function.
+    const request = injectionResult.result as ContentRequest;
+    handleContentRequest(request, tab);
+  }).catch(() => {
+    // "no tab with id" errors are expected here - the update races with
+    // closing a tab, and executeScript is just as good as chrome.tabs.get for
+    // discovering that.
+  });
 };
 
 // Update activity when the active tab changes.

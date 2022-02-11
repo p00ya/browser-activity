@@ -21,7 +21,7 @@ describe('ActivityManager', () => {
       },
     };
 
-    mockClient.sendHandshake.mockReturnValue(Promise.resolve({}));
+    mockClient.sendHandshake.mockReturnValue(Promise.resolve({ cmd: 'DISPATCH' }));
 
     mockClient.sendActivity.mockImplementation((activity) => Promise.resolve({
       cmd: 'SET_ACTIVITY',
@@ -30,7 +30,7 @@ describe('ActivityManager', () => {
       },
     }));
 
-    return mockClient;
+    return Promise.resolve(mockClient);
   });
 
   const activityManager = new ActivityManager(clientFactory);
@@ -39,75 +39,67 @@ describe('ActivityManager', () => {
     expect(clientFactory).not.toBeCalled();
   });
 
-  it('setActivity connects and sends handshake', () => {
-    const wait = activityManager.setActivity('TestClientId', 'test activity');
+  it('setActivity connects and sends handshake', async () => {
+    await activityManager.setActivity('TestClientId', 'test activity');
 
-    return wait.then(() => {
-      expect(clientFactory).toHaveBeenCalledTimes(1);
-      expect(clientFactory).toHaveBeenLastCalledWith('TestClientId');
+    expect(clientFactory).toHaveBeenCalledTimes(1);
+    expect(clientFactory).toHaveBeenLastCalledWith('TestClientId');
 
-      expect(mockClient).not.toBeNull();
-      // Redundant type-narrowing for TypeScript.
-      if (mockClient !== null) {
-        expect(mockClient.sendHandshake).toHaveBeenCalledTimes(1);
-        expect(mockClient.sendActivity).toHaveBeenCalledTimes(1);
-        expect(mockClient.sendActivity).toHaveBeenCalledWith('test activity');
-      }
-    });
+    expect(mockClient).not.toBeNull();
+    // Redundant type-narrowing for TypeScript.
+    if (mockClient !== null) {
+      expect(mockClient.sendHandshake).toHaveBeenCalledTimes(1);
+      expect(mockClient.sendActivity).toHaveBeenCalledTimes(1);
+      expect(mockClient.sendActivity).toHaveBeenCalledWith('test activity');
+    }
   });
 
-  it('setActivity with cached activity is ignored', () => {
+  it('setActivity with cached activity is ignored', async () => {
     clientFactory.mockClear();
     mockClient?.sendHandshake.mockClear();
     mockClient?.sendActivity.mockClear();
 
-    const wait = activityManager.setActivity('TestClientId', 'test activity');
+    await activityManager.setActivity('TestClientId', 'test activity');
 
-    return wait.then(() => {
-      expect(clientFactory).not.toBeCalled();
-      expect(mockClient).not.toBeNull();
-      // Redundant type-narrowing for TypeScript.
-      if (mockClient !== null) {
-        expect(mockClient.sendHandshake).not.toBeCalled();
-        expect(mockClient.sendActivity).not.toBeCalled();
-      }
-    });
+    expect(clientFactory).not.toBeCalled();
+    expect(mockClient).not.toBeNull();
+    // Redundant type-narrowing for TypeScript.
+    if (mockClient !== null) {
+      expect(mockClient.sendHandshake).not.toBeCalled();
+      expect(mockClient.sendActivity).not.toBeCalled();
+    }
   });
 
-  it('setActivity with different state', () => {
+  it('setActivity with different state', async () => {
     clientFactory.mockClear();
     mockClient?.sendHandshake.mockClear();
     mockClient?.sendActivity.mockClear();
 
-    const wait = activityManager.setActivity('TestClientId', 'new activity');
+    await activityManager.setActivity('TestClientId', 'new activity');
 
-    return wait.then(() => {
-      expect(clientFactory).not.toBeCalled();
-      expect(mockClient).not.toBeNull();
-      // Redundant type-narrowing for TypeScript.
-      if (mockClient !== null) {
-        expect(mockClient.clientId).toBe('TestClientId');
-        expect(mockClient.sendHandshake).not.toBeCalled();
-        expect(mockClient.sendActivity).toHaveBeenCalledTimes(1);
-        expect(mockClient.sendActivity).toHaveBeenCalledWith('new activity');
-      }
-    });
+    expect(clientFactory).not.toBeCalled();
+    expect(mockClient).not.toBeNull();
+    // Redundant type-narrowing for TypeScript.
+    if (mockClient !== null) {
+      expect(mockClient.clientId).toBe('TestClientId');
+      expect(mockClient.sendHandshake).not.toBeCalled();
+      expect(mockClient.sendActivity).toHaveBeenCalledTimes(1);
+      expect(mockClient.sendActivity).toHaveBeenCalledWith('new activity');
+    }
   });
 
-  it('setActivity with different clientId', () => {
+  it('setActivity with different clientId', async () => {
     clientFactory.mockClear();
-    const wait = activityManager.setActivity('NewClientId', 'new activity');
+    await activityManager.setActivity('NewClientId', 'new activity');
 
-    return wait.then(() => {
-      expect(clientFactory).toHaveBeenCalledTimes(1);
-      expect(mockClient).not.toBeNull();
-      // Redundant type-narrowing for TypeScript.
-      if (mockClient !== null) {
-        expect(mockClient.clientId).toBe('NewClientId');
-        expect(mockClient.sendHandshake).toHaveBeenCalledTimes(1);
-        expect(mockClient.sendActivity).toHaveBeenCalledTimes(1);
-      }
-    });
+    expect(clientFactory).toHaveBeenCalledTimes(1);
+    expect(mockClient).not.toBeNull();
+    // Redundant type-narrowing for TypeScript.
+    if (mockClient !== null) {
+      expect(mockClient.clientId).toBe('NewClientId');
+      expect(mockClient.sendHandshake).toHaveBeenCalledTimes(1);
+      expect(mockClient.sendActivity).toHaveBeenCalledTimes(1);
+    }
   });
 
   it('clearActivity disconnects', () => {
