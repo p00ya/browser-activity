@@ -49,6 +49,8 @@ Browser Activity is lighter weight and more secure than PreMiD:
 
  - Browser Activity's native app (chrome-discord-bridge) is much simpler and uses less resources than PreMiD's app.  It does little more than proxy bytes to Discord, which means logic for extracting activities and communicating with Discord stays sandboxed inside Chrome, instead of running with system access.  Furthermore, it's built on a lighter-weight runtime (compiled Go code rather than Node.js) - it uses <1MB of RAM!
 
+ - The Browser Activity and chrome-discord-bridge code is unit-tested.
+
 This has some downsides...  Browser Activity is less user-friendly:
 
  - No "Presence Store" - support for additional sites must be compiled in.
