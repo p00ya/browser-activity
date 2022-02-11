@@ -16,6 +16,7 @@
   "activityRules": [
     {
       "activityStateFromId": "premidTestMode",
+      "hasSelector": "#words letter.correct",
       "pageUrl": {
         "urlEquals": "https://monkeytype.com/"
       }

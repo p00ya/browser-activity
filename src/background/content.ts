@@ -19,8 +19,19 @@ export default function content(config: Config): ContentRequest {
 
   /** Extracts the activity state from the page if it should be published. */
   const getActivity = (): string | null => {
-    for (const { pageUrl, activityStateLiteral, activityStateFromId } of config.activityRules) {
+    for (const rule of config.activityRules) {
+      const {
+        pageUrl,
+        hasSelector,
+        activityStateLiteral,
+        activityStateFromId,
+      } = rule;
       if (!filterMatches(pageUrl, document)) {
+        continue;
+      }
+
+      if (hasSelector !== undefined
+          && document.querySelector(hasSelector) === null) {
         continue;
       }
 

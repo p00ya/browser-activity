@@ -45,6 +45,44 @@ describe('rule with activityStateLiteral', () => {
   });
 });
 
+describe('rule with hasSelector', () => {
+  const config: Config = {
+    hosts: [],
+    discordClientId: 'TestClientId',
+    showActionConditions: [],
+    activityRules: [
+      {
+        activityStateLiteral: 'Test Activity State',
+        hasSelector: '#foo .bar',
+        pageUrl: {
+          urlEquals: pageUrl,
+        },
+      },
+    ],
+  };
+
+  const literalActivity: ContentRequest = {
+    setActivity: {
+      clientId: 'TestClientId',
+      activityState: 'Test Activity State',
+    },
+  };
+
+  beforeEach(() => {
+    jsdom.reconfigure({ url: pageUrl });
+  });
+
+  it('selector present', () => {
+    global.document.body.innerHTML = '<div id="foo"><div class="bar"></div></div>';
+    expect(content(config)).toStrictEqual(literalActivity);
+  });
+
+  it('selector absent', () => {
+    global.document.body.innerHTML = '<div><div></div></div>';
+    expect(content(config)).toStrictEqual(clearActivity);
+  });
+});
+
 describe('rule with activityStateFromId', () => {
   const config: Config = {
     hosts: [],

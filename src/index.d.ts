@@ -5,11 +5,14 @@ interface UrlFilter {
 }
 
 // Maps conditions for the URL and content of a page to an activity state.
-// To publish an activity, the pageUrl filter must match, *and* the activity
+// To publish an activity, the filter/selectors must match, *and* the activity
 // state must be resolved through one of the other fields.
 interface ActivityRule {
   // A filter for the URL.
   pageUrl: UrlFilter;
+
+  // A CSS selector.  There must be a matching element for the rule to apply.
+  hasSelector?: string;
 
   // A literal string to set as the activity state.
   activityStateLiteral?: string;
