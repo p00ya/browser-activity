@@ -5,11 +5,14 @@ import ActivityManager from './ActivityManager';
 import * as configs from '../configs';
 
 const activityManager = new ActivityManager();
+const configIndex = new configs.ConfigIndex(configs.allConfigs);
 
 // Enable the user to opt-in on supported webpages.
 chrome.runtime.onInstalled.addListener(() => {
+  const conditions = configs.getConditions(configs.allConfigs);
+
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
-    chrome.declarativeContent.onPageChanged.addRules(configs.getShowActionConditions());
+    chrome.declarativeContent.onPageChanged.addRules(configs.makeRules(conditions));
   });
   chrome.action.setBadgeBackgroundColor({ color: '#5865F2' });
 });
@@ -60,7 +63,7 @@ const inject = function injectContentScript(tab: chrome.tabs.Tab) {
     return;
   }
 
-  const config = configs.get(tab.url);
+  const config = configIndex.forUrl(tab.url);
   if (config === null) {
     return;
   }
