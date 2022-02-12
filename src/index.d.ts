@@ -1,7 +1,12 @@
 // Fields in UrlFilter have the same semantics as chrome.events.UrlFilter.
+// The URL must match all specified fields.
 interface UrlFilter {
   // Exact match on the URL (with no fragment identifier).
-  urlEquals: string;
+  urlEquals?: string;
+
+  // A regular expression matched against the URL (with no fragment identifier).
+  // Will match on a substring unless anchored (with `^$`).
+  urlMatches?: string;
 }
 
 // Maps conditions for the URL and content of a page to an activity state.

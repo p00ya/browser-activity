@@ -22,7 +22,7 @@ const clearActivity: ContentRequest = {
 
 const pageUrl = 'https://example.com/page';
 
-describe('rule with activityStateLiteral', () => {
+describe('pageUrl.urlEquals', () => {
   const config: Config = {
     hosts: [],
     discordClientId: 'TestClientId',
@@ -54,6 +54,47 @@ describe('rule with activityStateLiteral', () => {
 
   it('pageUrl.urlEquals respects query', () => {
     jsdom.reconfigure({ url: `${pageUrl}?query` });
+    expect(content(config)).toStrictEqual(clearActivity);
+  });
+});
+
+describe('pageUrl.urlMatches', () => {
+  const config: Config = {
+    hosts: [],
+    discordClientId: 'TestClientId',
+    showActionConditions: [],
+    activityRules: [
+      {
+        activityStateLiteral: expectedActivityState,
+        pageUrl: {
+          // RegExp literal with a URL full of slashes is awkward:
+          // eslint-disable-next-line prefer-regex-literals
+          urlMatches: '^https://example\\.com/page(?:/foo)?$',
+        },
+      },
+    ],
+  };
+
+  it('pageUrl.urlMatches matches entire URL', () => {
+    jsdom.reconfigure({ url: `${pageUrl}` });
+    expect(content(config)).toStrictEqual(expectedActivity);
+
+    jsdom.reconfigure({ url: `${pageUrl}/foo` });
+    expect(content(config)).toStrictEqual(expectedActivity);
+  });
+
+  it('pageUrl.urlMatches ignores fragment', () => {
+    jsdom.reconfigure({ url: `${pageUrl}/foo#hash` });
+    expect(content(config)).toStrictEqual(expectedActivity);
+  });
+
+  it('pageUrl.urlMatches only matches prefix', () => {
+    jsdom.reconfigure({ url: `${pageUrl}/foobar` });
+    expect(content(config)).toStrictEqual(clearActivity);
+  });
+
+  it('pageUrl.urlMatches does not match', () => {
+    jsdom.reconfigure({ url: `${pageUrl}/nomatch` });
     expect(content(config)).toStrictEqual(clearActivity);
   });
 });

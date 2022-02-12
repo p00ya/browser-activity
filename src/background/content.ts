@@ -19,6 +19,12 @@ export default function content(config: Config): ContentRequest {
       return urlNoHash === filter.urlEquals;
     }
 
+    if (filter.urlMatches !== undefined) {
+      // TODO: cache the compiled RegExps.
+      const regexp = new RegExp(filter.urlMatches);
+      return regexp.test(urlNoHash);
+    }
+
     return true;
   };
 
