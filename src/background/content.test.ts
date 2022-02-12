@@ -6,6 +6,16 @@ declare global {
   const jsdom: JSDOM;
 }
 
+const expectedActivityState = 'TestState';
+
+/** Expected ContentRequest when the rule matches. */
+const expectedActivity: ContentRequest = {
+  setActivity: {
+    clientId: 'TestClientId',
+    activityState: expectedActivityState,
+  },
+};
+
 const clearActivity: ContentRequest = {
   clearActivity: {},
 };
@@ -19,7 +29,7 @@ describe('rule with activityStateLiteral', () => {
     showActionConditions: [],
     activityRules: [
       {
-        activityStateLiteral: 'Test Activity State',
+        activityStateLiteral: expectedActivityState,
         pageUrl: {
           urlEquals: pageUrl,
         },
@@ -27,21 +37,14 @@ describe('rule with activityStateLiteral', () => {
     ],
   };
 
-  const literalActivity: ContentRequest = {
-    setActivity: {
-      clientId: 'TestClientId',
-      activityState: 'Test Activity State',
-    },
-  };
-
   it('pageUrl.urlEquals matches exactly', () => {
     jsdom.reconfigure({ url: pageUrl });
-    expect(content(config)).toStrictEqual(literalActivity);
+    expect(content(config)).toStrictEqual(expectedActivity);
   });
 
   it('pageUrl.urlEquals ignores fragment', () => {
     jsdom.reconfigure({ url: `${pageUrl}#hash` });
-    expect(content(config)).toStrictEqual(literalActivity);
+    expect(content(config)).toStrictEqual(expectedActivity);
   });
 
   it('pageUrl.urlEquals does not match', () => {
@@ -62,7 +65,7 @@ describe('rule with hasSelector', () => {
     showActionConditions: [],
     activityRules: [
       {
-        activityStateLiteral: 'Test Activity State',
+        activityStateLiteral: expectedActivityState,
         hasSelector: '#foo .bar',
         pageUrl: {
           urlEquals: pageUrl,
@@ -71,20 +74,13 @@ describe('rule with hasSelector', () => {
     ],
   };
 
-  const literalActivity: ContentRequest = {
-    setActivity: {
-      clientId: 'TestClientId',
-      activityState: 'Test Activity State',
-    },
-  };
-
   beforeEach(() => {
     jsdom.reconfigure({ url: pageUrl });
   });
 
   it('selector present', () => {
     global.document.body.innerHTML = '<div id="foo"><div class="bar"></div></div>';
-    expect(content(config)).toStrictEqual(literalActivity);
+    expect(content(config)).toStrictEqual(expectedActivity);
   });
 
   it('selector absent', () => {
@@ -108,25 +104,18 @@ describe('rule with activityStateFromId', () => {
     ],
   };
 
-  const activityStateFromId: ContentRequest = {
-    setActivity: {
-      clientId: 'TestClientId',
-      activityState: 'Text Content',
-    },
-  };
-
   beforeEach(() => {
     jsdom.reconfigure({ url: pageUrl });
   });
 
   it('element missing', () => {
-    global.document.body.innerHTML = '<div>Text Content</div>';
+    global.document.body.innerHTML = '<div>TestState</div>';
     expect(content(config)).toStrictEqual(clearActivity);
   });
 
   it('element present', () => {
-    global.document.body.innerHTML = '<div id="test">Text Content</div>';
-    expect(content(config)).toStrictEqual(activityStateFromId);
+    global.document.body.innerHTML = '<div id="test">TestState</div>';
+    expect(content(config)).toStrictEqual(expectedActivity);
   });
 });
 
