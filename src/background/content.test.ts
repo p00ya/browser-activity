@@ -34,13 +34,23 @@ describe('rule with activityStateLiteral', () => {
     },
   };
 
-  it('matches pageUrl', () => {
+  it('pageUrl.urlEquals matches exactly', () => {
     jsdom.reconfigure({ url: pageUrl });
     expect(content(config)).toStrictEqual(literalActivity);
   });
 
-  it('does not match pageUrl', () => {
+  it('pageUrl.urlEquals ignores fragment', () => {
+    jsdom.reconfigure({ url: `${pageUrl}#hash` });
+    expect(content(config)).toStrictEqual(literalActivity);
+  });
+
+  it('pageUrl.urlEquals does not match', () => {
     jsdom.reconfigure({ url: `${pageUrl}nomatch` });
+    expect(content(config)).toStrictEqual(clearActivity);
+  });
+
+  it('pageUrl.urlEquals respects query', () => {
+    jsdom.reconfigure({ url: `${pageUrl}?query` });
     expect(content(config)).toStrictEqual(clearActivity);
   });
 });

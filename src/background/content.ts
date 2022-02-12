@@ -11,10 +11,15 @@ export default function content(config: Config): ContentRequest {
 
   /** Whether the given document matches the filter. */
   const filterMatches = (filter: UrlFilter, document: Document) => {
+    // Ignore the fragment identifier when comparing URLs.
+    const hash = document.URL.indexOf('#');
+    const urlNoHash = (hash === -1) ? document.URL : document.URL.substring(0, hash);
+
     if (filter.urlEquals !== undefined) {
-      return document.URL === filter.urlEquals;
+      return urlNoHash === filter.urlEquals;
     }
-    return false;
+
+    return true;
   };
 
   /** Extracts the activity state from the page if it should be published. */
