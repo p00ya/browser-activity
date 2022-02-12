@@ -86,21 +86,36 @@ Now go install chrome-discord-bridge - see [installation instructions above](#in
 
 ## Differences from PreMiD
 
-Browser Activity's functionality is similar to PreMiD.
+Browser Activity's functionality is similar to PreMiD.  Browser Activity (combined with chrome-discord-bridge) is lighter weight and more secure than PreMiD, at the cost of being less user-friendly.
 
-Browser Activity is lighter weight and more secure than PreMiD:
 
- -  Browser Activity uses stricter Chrome permissions (`activeTab` instead of `all_urls`), so opting a tab in to publishing activity updates is enforced by Chrome, not the extension itself.  The extension doesn't have access to any of your other tabs.
+| PreMiD                          | Browser Activity + chrome-discord-bridge  |
+| ------------------------------- | ----------------------------------------- |
+| Works on many platforms         | Only tested on Chrome and macOS           |
+| Easy to install                 | Run commands to build and install         |
+| App >500MB on disk              | chrome-discord-bridge <2MB on disk        |
+| >50MB RAM for app               | <1MB RAM for chrome-discord-bridge        |
+| App accesses system events      | No special permissions needed             |
+| Has access to all tabs          | Must manually enable each tab             |
+| Unsecured websocket             | Chrome native messaging host              |
+| Arbitrary Presence code         | Restrictive site configs                  |
+| Lots of Presences in Store      | Few configs, or write your own            |
+| Lots of UI features             | Minimal UI features                       |
+| Lots of code, no tests          | Very little code, lots of tests           |
+
+Advantages of Browser Activity and chrome-discord-bridge:
+
+ -  Browser Activity uses stricter Chrome permissions (`activeTab` instead of `<all_urls>`), so Chrome stops your activity being inadvertently published, not the extension itself.  The extension doesn't have access to any of your other tabs.  See Google's [explanation of activeTab](https://developer.chrome.com/docs/extensions/mv3/manifest/activeTab/#motivation) for more details.
 
  -  Browser Activity's equivalent of PreMiD's "Presences" (site-specific plugins) do not allow arbitrary code; they are declarative, data-only, configs.  They cannot modify the page content.
 
  -  Browser Activity uses a native messaging host to launch and communicate with the native app.  PreMiD uses a native app that you must start separately and listens on a websocket.  Using a native messaging host has several advantages: Chrome starts the native app on demand, and access to the native app is secured by Chrome (no other extensions or websites can call it).
 
- -  Browser Activity's native app (chrome-discord-bridge) is much simpler and uses less resources than PreMiD's app.  It does little more than proxy bytes to Discord, which means logic for extracting activities and communicating with Discord stays sandboxed inside Chrome, instead of running with system access.  Furthermore, it's built on a lighter-weight runtime (compiled Go code rather than Node.js) - it uses <1MB of RAM!
+ -  Browser Activity's native app (chrome-discord-bridge) is much simpler and uses less resources than PreMiD's app.  It does little more than proxy bytes to Discord, which means logic for extracting activities and communicating with Discord stays sandboxed inside Chrome, instead of running with system access.  Furthermore, it's built on a lighter-weight runtime (compiled Go code rather than Electron)!
 
  -  The Browser Activity and chrome-discord-bridge code is unit-tested.
 
-This has some downsides...  Browser Activity is less user-friendly:
+Disadvantages:
 
  -  No "Presence Store" - support for additional sites must be compiled in.
 
