@@ -1,39 +1,88 @@
 # Browser Activity
 
-Browser Activity is a Chrome extension to publish browser activity to Discord's Rich Presence.
+Browser Activity is a Chrome extension to publish website browsing activity to Discord's Activity Status (also known as "Rich Presence").  It will publish activity from particular Chrome tabs that you enable.  That activity will be visible to your Discord friends and other users on the same Discord servers as you.
 
-It requires a native app, chrome-discord-bridge, to be installed.
+## Installation
+
+This extension isn't published on the Chrome Web Store yet, so installation requires several steps.  You will need to unpack and load the extension, and also build and install the native `chrome-discord-bridge` program.  These instructions assume experience with the terminal and git.
+
+### Installing the extension
+
+1.  Download the latest zip archive from the [GitHub releases page](https://github.com/p00ya/browser-activity/releases).
+
+2.  Unzip the archive.  You want the files in the archive to be created in their own directory, which is the default behaviour with macOS's Archive Utility.  Alternatively, run the command:
+
+        unzip -d browser-activity browser-activity.zip
+
+3.  Open chrome://extensions in Google Chrome.  Enable "Developer mode" if it's not already enabled.
+
+4.  Click "Load unpacked", then select the directory you created before.
+
+5.  Note the "ID" for Browser Activity in the chrome://extensions page.
+
+> :warning: WARNING: if you move the files or directory, you will have to repeat step 4.
+
+### Installing chrome-discord-bridge
+
+1.  You will need to install [git](https://github.com/git-guides/install-git) and [Go](https://go.dev/dl/) 1.17 if they are not already installed on your system.
+
+2.  Clone the chrome-discord-bridge git repository:
+
+        git clone https://github.com/p00ya/chrome-discord-bridge.git
+        cd chrome-discord-bridge
+
+3.  Remember the ID from step 5 of loading the extension?  It will be something like `nglhipbdoknhpejdpceibmeaohidgcod`.  Open the file `cmd/chrome-discord-bridge/origins.txt` in a text editor and add a line with that ID, like:
+
+        chrome-extension://nglhipbdoknhpejdpceibmeaohidgcod/
+
+4.  Build the `chrome-discord-bridge` binary:
+
+        go build ./cmd/chrome-discord-bridge
+
+5.  The previous command will produce a command-line program `chrome-discord-bridge`.  Then run:
+
+        ./chrome-discord-bridge -install
+
+    This will write a file `io.github.p00ya.cdb.json` to Google Chrome's user configuration directory (the location varies between operating systems).
+
+That's it - you don't need to run `chrome-discord-bridge` manually; Chrome will start it on demand.
+
+> :warning: WARNING: if you move the `chrome-discord-bridge` binary, you will have to repeat step 5.
+
+## Usage
+
+For Browser Activity to work, you must be running the Discord desktop app (not the web app) and have chrome-discord-bridge installed (see above).
+
+In Google Chrome, open the Chrome extensions menu.  If Browser Activity is showing in the "No access needed" section of the menu, it means the extension doesn't support Activity for the site that's currently open in the tab.  Otherwise, you can enable Browser Activity for the tab by clicking the Browser Activity item in the menu.
+
+> :sunglasses: NOTE: the extension doesn't have access to any of your browsing activity other than the tabs you've explicitly enabled it for.
+
+After it's enabled for a tab, the Browser Activity icon in the extensions menu will have a purple badge on it.  If the page satisfies particular rules, an activity message corresponding to what you're doing on the page will be sent to Discord.
+
+If you close the tab, or navigate to a different website, the extension will be disabled, and your Discord status will get cleared.
+
+Currently, just two sites are supported:
+
+ * https://monkeytype.com (typing page)
+ * https://www.wanikani.com (lessons and reviews)
+
+> :warning: WARNING: if you're seeing a red badge on the extension item, it means the native apps aren't installed or running.
 
 ## Development
 
-The Browser Activity extension is written in typescript, which is translated to javascript by webpack.  To get started, install Node.js and yarn, then fetch dependencies by running:
+The Browser Activity extension is written in TypeScript with ES6 modules, which is translated to javascript by ts-loader and webpack.  To get started, install Node.js and yarn, then fetch dependencies by running:
 
-```
-yarn
-```
+    yarn
 
 To build the extension continuously, run:
 
-```
-yarn start
-```
+    yarn start
 
 To load the extension, navigate to chrome://extensions, enable Developer Mode, and click "Load unpacked".  Select the `dist` directory.
 
 Note the extension ID for Browser Activity that will now be visible in chrome://extensions.
 
-Now go checkout https://github.com/p00ya/chrome-discord-bridge.  You will need to add the extension URL to `cmd/chrome-discord-bridge/origins.txt`, and then run:
-
-```
-go build ./cmd/chrome-discord-bridge
-./chrome-discord-bridge -install
-```
-
-## Usage
-
-In Chrome, click the Extensions menu.  If the site on the current tab is supported, the "Browser Activity" item will appear under the "Access requested" section.  Clicking the item will enable activity publishing for the tab until the tab is closed.
-
-You must have the Discord app running on the same machine to publish activity.  Using Discord from a browser window won't work.
+Now go install chrome-discord-bridge - see [installation instructions above](#installing-chrome-discord-bridge).
 
 ## Differences from PreMiD
 
