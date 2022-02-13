@@ -36,6 +36,7 @@ export default function content(config: Config): ContentRequest {
         hasSelector,
         activityStateLiteral,
         activityStateFromId,
+        activityStateFromSelector,
       } = rule;
       if (!filterMatches(pageUrl, document)) {
         continue;
@@ -54,6 +55,14 @@ export default function content(config: Config): ContentRequest {
         const element = document.getElementById(activityStateFromId);
         if (element != null) {
           return element.textContent;
+        }
+      }
+
+      if (activityStateFromSelector !== undefined) {
+        const { selector, attribute } = activityStateFromSelector;
+        const element = document.querySelector(selector);
+        if (element !== null && attribute !== undefined) {
+          return element.getAttribute(attribute);
         }
       }
     }

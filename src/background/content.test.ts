@@ -119,12 +119,12 @@ describe('rule with hasSelector', () => {
     jsdom.reconfigure({ url: pageUrl });
   });
 
-  it('selector present', () => {
+  it('selector matches', () => {
     global.document.body.innerHTML = '<div id="foo"><div class="bar"></div></div>';
     expect(content(config)).toStrictEqual(expectedActivity);
   });
 
-  it('selector absent', () => {
+  it('selector doesn\'t match', () => {
     global.document.body.innerHTML = '<div><div></div></div>';
     expect(content(config)).toStrictEqual(clearActivity);
   });
@@ -157,6 +157,47 @@ describe('rule with activityStateFromId', () => {
   it('element present', () => {
     global.document.body.innerHTML = '<div id="test">TestState</div>';
     expect(content(config)).toStrictEqual(expectedActivity);
+  });
+});
+
+describe('rule with activityStateFromSelector', () => {
+  const config: Config = {
+    hosts: [],
+    discordClientId: 'TestClientId',
+    showActionConditions: [],
+    activityRules: [
+      {
+        activityStateFromSelector: {
+          selector: 'head > meta[property="foo"]',
+          attribute: 'content',
+        },
+        pageUrl: {
+          urlEquals: pageUrl,
+        },
+      },
+    ],
+  };
+
+  beforeEach(() => {
+    jsdom.reconfigure({ url: pageUrl });
+  });
+
+  it('selector matches', () => {
+    global.document.head.innerHTML = '<meta property="foo" content="TestState">'
+      + '<title>Title</title>';
+    expect(content(config)).toStrictEqual(expectedActivity);
+  });
+
+  it('selector matches and attribute missing', () => {
+    global.document.head.innerHTML = '<meta property="foo">'
+      + '<title>Title</title>';
+    expect(content(config)).toStrictEqual(clearActivity);
+  });
+
+  it('selector doesn\'t match', () => {
+    global.document.head.innerHTML = '<meta property="bar" content="TestState">'
+      + '<title>Title</title>';
+    expect(content(config)).toStrictEqual(clearActivity);
   });
 });
 

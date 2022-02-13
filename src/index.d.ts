@@ -25,6 +25,16 @@ interface ActivityRule {
   // An element ID; the text content of the matching element will be used as
   // the activity state.
   activityStateFromId?: string;
+
+  // The matching element / content will be used as the activity state.
+  activityStateFromSelector?: {
+    // A CSS selector; there must be a matching element for the rule to apply.
+    selector: string;
+
+    // Use the given DOM attribute on the matching element as the activity
+    // state.
+    attribute: string;
+  };
 }
 
 // Configuration for mapping a particular website to activity states.
