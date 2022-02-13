@@ -18,9 +18,9 @@ module.exports = merge(common, {
                 'console.warn',
               ],
             },
-          }
-        }
-      )
+          },
+        },
+      ),
     ],
   },
 });

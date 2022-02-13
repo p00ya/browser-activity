@@ -3,7 +3,6 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
-
 module.exports = {
   entry: {
     background: './src/background/index.ts',
@@ -17,7 +16,7 @@ module.exports = {
           {
             loader: 'ts-loader',
             // See: https://webpack.js.org/guides/build-performance/#typescript-loader
-            options: { transpileOnly: true }
+            options: { transpileOnly: true },
           },
         ],
       },
