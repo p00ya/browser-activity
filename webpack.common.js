@@ -1,6 +1,8 @@
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+
 
 module.exports = {
   entry: {
@@ -11,7 +13,13 @@ module.exports = {
       {
         exclude: /node_modules/,
         test: /\.ts$/,
-        use: 'ts-loader',
+        use: [
+          {
+            loader: 'ts-loader',
+            // See: https://webpack.js.org/guides/build-performance/#typescript-loader
+            options: { transpileOnly: true }
+          },
+        ],
       },
     ],
   },
@@ -24,6 +32,7 @@ module.exports = {
         { from: './src/img/icon-*.png', to: '[name][ext]' },
       ],
     }),
+    new ForkTsCheckerWebpackPlugin(),
   ],
   resolve: {
     extensions: ['.ts'],
