@@ -1,0 +1,27 @@
+{
+  "hosts": [
+    "boardgamearena.com"
+  ],
+  "discordClientId": "941967002308845609",
+  "showActionConditions": [
+    {
+      "pageUrl": {
+        "hostEquals": "boardgamearena.com",
+        "schemes": [
+          "https"
+        ]
+      }
+    }
+  ],
+  "activityRules": [
+    {
+      "pageUrl": {
+        "urlMatches": "https://boardgamearena\\.com/\\d+/[^/?]+\\?table=\\d+"
+      },
+      "activityStateFromSelector": {
+        "selector": "meta[property='og:title']",
+        "attribute": "content"
+      }
+    }
+  ]
+}

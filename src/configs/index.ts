@@ -1,8 +1,13 @@
+import * as boardgamearena from './boardgamearena.json';
 import * as monkeytype from './monkeytype.json';
 import * as wanikani from './wanikani.json';
 
 /** All of the configs for matching sites and extracting activity strings. */
-export const allConfigs: readonly Config[] = [monkeytype, wanikani];
+export const allConfigs: readonly Config[] = [
+  boardgamearena,
+  monkeytype,
+  wanikani,
+];
 
 /**
  * The union of all conditions for enabling the extension, according to the

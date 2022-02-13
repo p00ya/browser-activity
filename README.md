@@ -61,8 +61,9 @@ After it's enabled for a tab, the Browser Activity icon in the extensions menu w
 
 If you close the tab, or navigate to a different website, the extension will be disabled, and your Discord status will get cleared.
 
-Currently, just two sites are supported:
+Currently, the supported sites are:
 
+ * https://boardgamearena.com (active table)
  * https://monkeytype.com (typing page)
  * https://www.wanikani.com (lessons and reviews)
 
