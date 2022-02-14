@@ -72,20 +72,3 @@ test('makeRules', () => {
   const rules = configs.makeRules(testConditions);
   expect(rules.length).toBe(2);
 });
-
-describe('ConfigIndex', () => {
-  const index = new configs.ConfigIndex(testConfigs);
-
-  it('forUrl finds config', () => {
-    const config = index.forUrl('https://example.com/page');
-    expect(config).not.toBeNull();
-    if (config !== null) {
-      expect(config.hosts).toStrictEqual(['example.com']);
-    }
-  });
-
-  it('forUrl returns null', () => {
-    const config = index.forUrl('https://notexample.com/');
-    expect(config).toBeNull();
-  });
-});

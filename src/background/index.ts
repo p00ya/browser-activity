@@ -3,9 +3,10 @@
 import content from '../content';
 import ActivityManager from './ActivityManager';
 import * as configs from '../configs';
+import ConfigIndex from '../configs/ConfigIndex';
 
 const activityManager = new ActivityManager();
-const configIndex = new configs.ConfigIndex(configs.allConfigs);
+const configIndex = new ConfigIndex(configs.allConfigs);
 
 const badgeWarningColour = '#ED4245';
 const badgeActiveColour = '#5865F2'; // blurple
