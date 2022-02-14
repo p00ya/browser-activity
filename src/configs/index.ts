@@ -37,10 +37,10 @@ export const makeRules = function makeRules(
 
 /** Provides lookups for configs. */
 export class ConfigIndex {
-  private readonly map: { [host: string]: Config };
+  readonly #map: { [host: string]: Config };
 
   constructor(configs: readonly Config[]) {
-    this.map = Object.fromEntries(
+    this.#map = Object.fromEntries(
       configs.flatMap(
         (config) => config.hosts.map((host) => [host, config]),
       ),
@@ -51,7 +51,7 @@ export class ConfigIndex {
   forUrl(url: string): Config | null {
     try {
       const parsedURL = new URL(url);
-      return this.map[parsedURL.host] || null;
+      return this.#map[parsedURL.host] || null;
     } catch (e) {
       console.warn(e);
       return null;
