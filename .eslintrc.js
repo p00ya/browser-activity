@@ -7,13 +7,18 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: 'airbnb-base',
+  extends: [
+    'airbnb-base',
+    'plugin:jsonc/recommended-with-json',
+  ],
   ignorePatterns: ['dist/*'],
   parserOptions: {
     ecmaVersion: 'latest',
   },
   rules: {
     'eol-last': 'error',
+    'jsonc/indent': ['error', 2],
+    'jsonc/object-curly-spacing': ['error', 'always'],
   },
   overrides: [
     {
