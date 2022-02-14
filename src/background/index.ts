@@ -1,6 +1,6 @@
 // Entry point for the Chrome extension service worker.
 
-import content from './content';
+import content from '../content';
 import ActivityManager from './ActivityManager';
 import * as configs from '../configs';
 

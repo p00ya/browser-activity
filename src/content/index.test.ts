@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom';
-import content from './content';
+import content from './index';
 
 // See: https://github.com/simon360/jest-environment-jsdom-global/issues/5#issuecomment-508749508
 declare global {
