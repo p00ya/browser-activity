@@ -64,6 +64,7 @@ If you close the tab, or navigate to a different website, the extension will be 
 Currently, the supported sites are:
 
  * https://boardgamearena.com (active table)
+ * https://dominion.games (active game)
  * https://monkeytype.com (typing page)
  * https://www.wanikani.com (lessons and reviews)
 

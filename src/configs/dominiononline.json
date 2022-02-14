@@ -1,0 +1,25 @@
+{
+  "hosts": [
+    "dominion.games"
+  ],
+  "discordClientId": "849684658563055627",
+  "showActionConditions": [
+    {
+      "pageUrl": {
+        "hostEquals": "dominion.games",
+        "schemes": [
+          "https"
+        ]
+      }
+    }
+  ],
+  "activityRules": [
+    {
+      "pageUrl": {
+        "urlEquals": "https://dominion.games/"
+      },
+      "hasSelector": ".game-page",
+      "activityStateLiteral": "In game"
+    }
+  ]
+}

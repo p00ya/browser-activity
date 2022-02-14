@@ -1,10 +1,12 @@
 import * as boardgamearena from './boardgamearena.json';
+import * as dominiononline from './dominiononline.json';
 import * as monkeytype from './monkeytype.json';
 import * as wanikani from './wanikani.json';
 
 /** All of the configs for matching sites and extracting activity strings. */
 export const allConfigs: readonly Config[] = [
   boardgamearena,
+  dominiononline,
   monkeytype,
   wanikani,
 ];
