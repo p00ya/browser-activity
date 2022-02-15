@@ -17,6 +17,10 @@ module.exports = {
   },
   rules: {
     'eol-last': 'error',
+    'import/order': ['error', {
+      alphabetize: { order: 'asc' },
+      'newlines-between': 'never',
+    }],
     'jsonc/indent': ['error', 2],
     'jsonc/object-curly-spacing': ['error', 'always'],
   },

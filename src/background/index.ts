@@ -1,9 +1,9 @@
 // Entry point for the Chrome extension service worker.
 
-import content from '../content';
-import ActivityManager from './ActivityManager';
 import * as configs from '../configs';
 import ConfigIndex from '../configs/ConfigIndex';
+import content from '../content';
+import ActivityManager from './ActivityManager';
 
 const activityManager = new ActivityManager();
 const configIndex = new ConfigIndex(configs.allConfigs);

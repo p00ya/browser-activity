@@ -1,5 +1,5 @@
-import { mockDeep } from 'jest-mock-extended';
 import { chrome } from 'jest-chrome';
+import { mockDeep } from 'jest-mock-extended';
 import DiscordClient from './DiscordClient';
 
 test('connect creates port', () => DiscordClient.connect('TestClient').then(() => {
