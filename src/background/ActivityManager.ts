@@ -8,12 +8,11 @@ export default class ActivityManager {
 
   #activityState?: string;
 
-  /**
-   * @param clientFactory - constructs a DiscordClient
-   */
-  constructor(
-    private readonly clientFactory: ClientFactory = DiscordClient.connect,
-  ) { }
+  readonly #clientFactory: ClientFactory;
+
+  constructor(clientFactory: ClientFactory = DiscordClient.connect) {
+    this.#clientFactory = clientFactory;
+  }
 
   async clearActivity() {
     this.#activityState = undefined;
@@ -29,7 +28,7 @@ export default class ActivityManager {
 
     // Make sure the client is connected with the appropriate clientId.
     if (!this.#client?.connected) {
-      this.#client = await this.clientFactory(clientId);
+      this.#client = await this.#clientFactory(clientId);
       const { cmd } = await this.#client.sendHandshake();
       if (cmd !== 'DISPATCH') {
         console.debug(`Unexpected response; got ${cmd}, wanted 'DISPATCH'`);

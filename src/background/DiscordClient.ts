@@ -47,6 +47,10 @@ export default class DiscordClient implements IDiscordClient {
   /** Rejects the #nextResponse promise. */
   #rejectNextResponse?: (reason: Error) => void;
 
+  readonly clientId: string;
+
+  readonly #port: chrome.runtime.Port;
+
   /** Creates a new client. */
   static connect(clientId: string): Promise<DiscordClient> {
     const port = chrome.runtime.connectNative(host);
@@ -56,22 +60,20 @@ export default class DiscordClient implements IDiscordClient {
     return Promise.resolve(new DiscordClient(clientId, port));
   }
 
-  /**
-   * @param clientId - the Discord client ID
-   * @param port - a native messaging port connected to chrome-discord-bridge
-   */
-  constructor(readonly clientId: string, private readonly port: chrome.runtime.Port) {
+  constructor(clientId: string, port: chrome.runtime.Port) {
+    this.clientId = clientId;
+    this.#port = port;
     this.connected = true;
     this.#nextResponse = this.makeNextResponse();
 
-    this.port.onMessage.addListener((response) => {
+    this.#port.onMessage.addListener((response) => {
       console.debug(`Received: ${JSON.stringify(response)}`);
       if (this.#resolveNextResponse !== undefined) {
         this.#resolveNextResponse(response);
       }
     });
 
-    this.port.onDisconnect.addListener(() => {
+    this.#port.onDisconnect.addListener(() => {
       if (this.#rejectNextResponse !== undefined) {
         this.#rejectNextResponse(new Error('disconnected'));
       }
@@ -108,7 +110,7 @@ export default class DiscordClient implements IDiscordClient {
 
     const nextResponse = this.#nextResponse;
     console.debug(`Send: ${JSON.stringify(handshake)}`);
-    this.port.postMessage(handshake);
+    this.#port.postMessage(handshake);
     return nextResponse;
   }
 
@@ -131,7 +133,7 @@ export default class DiscordClient implements IDiscordClient {
 
     const nextResponse = this.#nextResponse;
     console.debug(`Send: ${JSON.stringify(activityFrame)}`);
-    this.port.postMessage(activityFrame);
+    this.#port.postMessage(activityFrame);
     return nextResponse;
   }
 
@@ -146,7 +148,7 @@ export default class DiscordClient implements IDiscordClient {
     }
 
     console.debug('Disconnect');
-    this.port.disconnect();
+    this.#port.disconnect();
     this.connected = false;
   }
 }
