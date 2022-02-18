@@ -119,3 +119,55 @@ describe('ActivityManager', () => {
     }
   });
 });
+
+test('ActivityManager repeated setActivity', async () => {
+  // Promise resolution functions for mockClient.sendActivity calls.
+  const sendActivityResolvers: Array<(result: any) => void> = [];
+
+  const mockClient: MockClient = {
+    clientId: 'TestClientId',
+    connected: true,
+    sendHandshake: jest.fn() as MockClient['sendHandshake'],
+    sendActivity: jest.fn() as MockClient['sendActivity'],
+    disconnect(): void {
+      this.connected = false;
+    },
+  };
+  mockClient.sendHandshake.mockReturnValue(Promise.resolve({ cmd: 'DISPATCH' }));
+  mockClient.sendActivity.mockImplementation(() => new Promise((resolve) => {
+    sendActivityResolvers.push(resolve);
+  }));
+
+  const clientFactory = jest.fn() as jest.MockedFunction<ClientFactory>;
+  clientFactory.mockReturnValue(Promise.resolve(mockClient));
+
+  const activityManager = new ActivityManager(clientFactory);
+
+  const wait1 = activityManager.setActivity('TestClientId', 'test activity');
+  const wait2 = activityManager.setActivity('TestClientId', 'test activity');
+
+  await wait1;
+  expect(mockClient).not.toBeNull();
+  if (mockClient !== null) { // Redundant type-narrowing for TypeScript.
+    expect(mockClient.sendHandshake).toHaveBeenCalledTimes(1);
+    expect(mockClient.sendActivity).toHaveBeenCalledTimes(1);
+  }
+
+  expect(sendActivityResolvers).toHaveLength(1);
+  (sendActivityResolvers.pop()!)(
+    {
+      cmd: 'SET_ACTIVITY',
+      data: {
+        state: 'test activity',
+      },
+    },
+  );
+
+  // Second call should resolve without any further requests to Discord.
+  await wait2;
+  expect(mockClient).not.toBeNull();
+  if (mockClient !== null) { // Redundant type-narrowing for TypeScript.
+    expect(mockClient.sendHandshake).toHaveBeenCalledTimes(1);
+    expect(mockClient.sendActivity).toHaveBeenCalledTimes(1);
+  }
+});

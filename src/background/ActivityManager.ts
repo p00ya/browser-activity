@@ -10,20 +10,52 @@ export default class ActivityManager {
 
   readonly #clientFactory: ClientFactory;
 
+  /**
+   * A promise that must settle before any additional send operations occur on
+   * the client.
+   */
+  #waiting: Promise<void> = Promise.resolve();
+
+  #nextActivity?: { clientId: string, activity: string };
+
   constructor(clientFactory: ClientFactory = DiscordClient.connect) {
     this.#clientFactory = clientFactory;
   }
 
-  async clearActivity() {
+  clearActivity() {
+    this.#nextActivity = undefined;
     this.#activityState = undefined;
-    await this.#client?.disconnect();
+    this.#client?.disconnect();
   }
 
-  async setActivity(clientId: string, activity: string) {
-    if (this.#client?.connected && this.#client.clientId !== clientId) {
+  /**
+   * Schedule an update to the activity.
+   *
+   * If there's an outstanding request, don't do anything yet.  When that
+   * request returns, only the parameters from the last call to setActivity()
+   * will be used.
+   */
+  setActivity(clientId: string, activity: string) {
+    this.#nextActivity = { clientId, activity };
+    this.#waiting = this.#waiting.then(() => {
+      if (this.#nextActivity !== undefined) {
+        this.#waiting = this.maybeConnectAndSend(
+          this.#nextActivity.clientId,
+          this.#nextActivity.activity,
+        );
+        this.#nextActivity = undefined;
+      }
+    }).catch((e) => {
+      console.warn(`Error in maybeConnectAndSend: ${e}`);
+    });
+    return this.#waiting;
+  }
+
+  private async maybeConnectAndSend(clientId: string, activity: string) {
+    if (this.#client?.connected && this.#client?.clientId !== clientId) {
       // Since the client ID is established when the connection to Discord is
       // initialized, we must disconnect to change it.
-      await this.clearActivity();
+      this.clearActivity();
     }
 
     // Make sure the client is connected with the appropriate clientId.

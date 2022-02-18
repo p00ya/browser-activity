@@ -21,17 +21,16 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 const clearActivity = function clearActivity(isEnabled: boolean, tabId: number) {
-  activityManager.clearActivity().then(() => {
-    chrome.action.setBadgeBackgroundColor({ color: badgeActiveColour });
-    chrome.action.setBadgeText({
-      text: isEnabled ? ' ' : '', // empty string clears the badge
-      tabId,
-    });
+  activityManager.clearActivity();
+  chrome.action.setBadgeBackgroundColor({ color: badgeActiveColour });
+  chrome.action.setBadgeText({
+    text: isEnabled ? ' ' : '', // empty string clears the badge
+    tabId,
   });
 };
 
 const setActivity = function setActivity(clientId: string, state: string, tabId: number) {
-  activityManager.setActivity(clientId, state).then(() => {
+  return activityManager.setActivity(clientId, state).then(() => {
     chrome.action.setBadgeText({
       text: ':-)',
       tabId,
