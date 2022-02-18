@@ -22,6 +22,12 @@ interface ActivityFrame {
   nonce: string;
 }
 
+interface ResolveReject {
+  resolve: (result: any) => void;
+  reject: (error: Error) => void;
+  done: boolean;
+}
+
 export interface IDiscordClient {
   readonly clientId: string;
   connected: boolean;
@@ -36,19 +42,14 @@ export interface IDiscordClient {
  */
 export default class DiscordClient implements IDiscordClient {
   /** Whether the native messaging port is connected. */
-  connected = false;
+  connected = true;
 
-  /** Resolves to the next JSON payload to be received from Discord. */
-  #nextResponse: Promise<any>;
-
-  /** Resolves the #nextResponse promise. */
-  #resolveNextResponse?: (response: object) => void;
-
-  /** Rejects the #nextResponse promise. */
-  #rejectNextResponse?: (reason: Error) => void;
+  /** Executors to resolve/reject response promises, indexed by nonce. */
+  #executors: { [key: string]: ResolveReject } = {};
 
   readonly clientId: string;
 
+  /** Native messaging port connected to chrome-discord-bridge. */
   readonly #port: chrome.runtime.Port;
 
   /** Creates a new client. */
@@ -63,36 +64,39 @@ export default class DiscordClient implements IDiscordClient {
   constructor(clientId: string, port: chrome.runtime.Port) {
     this.clientId = clientId;
     this.#port = port;
-    this.connected = true;
-    this.#nextResponse = this.makeNextResponse();
 
     this.#port.onMessage.addListener((response) => {
       console.debug(`Received: ${JSON.stringify(response)}`);
-      if (this.#resolveNextResponse !== undefined) {
-        this.#resolveNextResponse(response);
+      const nonce = String(response.nonce);
+      const executor = this.#executors[nonce];
+
+      if (executor === undefined) {
+        console.debug(`Unexpected response with nonce ${nonce}`);
+        return;
       }
+
+      executor.resolve(response);
+      executor.done = true;
     });
 
     this.#port.onDisconnect.addListener(() => {
-      if (this.#rejectNextResponse !== undefined) {
-        this.#rejectNextResponse(new Error('disconnected'));
-      }
+      this.rejectAll('host disconnected');
       this.connected = false;
     });
   }
 
-  private makeNextResponse() {
-    const nextResponse = new Promise<any>((resolve, reject) => {
-      // We use this indirection so that the #port listener only needs to be
-      // registered once, and it will resolve the current promise.
-      this.#resolveNextResponse = resolve;
-      this.#rejectNextResponse = reject;
+  private rejectAll(reason: string) {
+    Object.values(this.#executors).forEach(({ done, reject }) => {
+      if (!done) {
+        reject(new Error(reason));
+      }
     });
+    this.#executors = {};
+  }
 
-    return nextResponse.then((response) => {
-      // Use a new promise for the next response.
-      this.#nextResponse = this.makeNextResponse();
-      return response;
+  private promiseResponse(nonce: string) {
+    return new Promise((resolve, reject) => {
+      this.#executors[nonce] = { done: false, resolve, reject };
     });
   }
 
@@ -102,16 +106,20 @@ export default class DiscordClient implements IDiscordClient {
       return Promise.reject(new Error('not connected'));
     }
 
+    // Discord doesn't echo the nonce from the handshake, it just sends back
+    // null.
+    const nonce = 'null';
+    const response = this.promiseResponse(nonce);
+
     const handshake: Handshake = {
       client_id: this.clientId,
-      nonce: `${Date.now()}`,
+      nonce: '',
       v: 1,
     };
 
-    const nextResponse = this.#nextResponse;
     console.debug(`Send: ${JSON.stringify(handshake)}`);
     this.#port.postMessage(handshake);
-    return nextResponse;
+    return response;
   }
 
   /** Sends Discord-IPC's "SET_ACTIVITY" command. */
@@ -119,6 +127,9 @@ export default class DiscordClient implements IDiscordClient {
     if (!this.connected) {
       return Promise.reject(new Error('not connected'));
     }
+
+    const nonce = `${Date.now()}`;
+    const response = this.promiseResponse(nonce);
 
     const activityFrame: ActivityFrame = {
       args: {
@@ -128,13 +139,12 @@ export default class DiscordClient implements IDiscordClient {
         pid: 0, // not really our PID, but Discord complains if missing
       },
       cmd: 'SET_ACTIVITY',
-      nonce: `${Date.now()}`,
+      nonce,
     };
 
-    const nextResponse = this.#nextResponse;
     console.debug(`Send: ${JSON.stringify(activityFrame)}`);
     this.#port.postMessage(activityFrame);
-    return nextResponse;
+    return response;
   }
 
   /**

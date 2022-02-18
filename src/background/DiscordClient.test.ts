@@ -19,8 +19,9 @@ describe('DiscordClient', () => {
     expect(mockPort.postMessage).toHaveBeenCalledTimes(1);
     const [[handshake]] = mockPort.postMessage.mock.calls;
     expect(handshake.client_id).toBe('TestClient');
+    expect(handshake.nonce).toBe('');
 
-    onMessage({ cmd: 'DISPATCH' }, mockPort);
+    onMessage({ cmd: 'DISPATCH', nonce: null }, mockPort);
     return wait;
   });
 
@@ -38,6 +39,7 @@ describe('DiscordClient', () => {
       data: {
         state: 'TestActivity',
       },
+      nonce: activityFrame.nonce,
     }, mockPort);
     return wait;
   });
