@@ -4,42 +4,33 @@ Browser Activity is a Chrome extension to publish website browsing activity to D
 
 ## Installation
 
-This extension isn't published on the Chrome Web Store yet, so installation requires several steps.  You will need to unpack and load the extension, and also build and install the native chrome-discord-bridge program.  These instructions assume experience with the terminal and git.
+You will need to install both the Chrome extension and the native chrome-discord-bridge program.
 
 ### Installing the extension
 
-1.  Download the latest zip archive from the [GitHub releases page](https://github.com/p00ya/browser-activity/releases).
+The easiest way to install the extension is from the [Chrome Web Store](https://chrome.google.com/webstore/detail/browser-activity/cemkhompnmfhdjkkmodjhlgomcmddefi).
 
-2.  Unzip the archive.  You want the files in the archive to be created in their own directory, which is the default behaviour with macOS's Archive Utility.  Alternatively, run the command:
-
-        unzip -d browser-activity browser-activity.zip
-
-3.  Open chrome://extensions in Google Chrome.  Enable "Developer mode" if it's not already enabled.
-
-4.  Click "Load unpacked", then select the directory you created before.
-
-5.  Note the "ID" for Browser Activity in the chrome://extensions page.
-
-> :warning: WARNING: if you move the files or directory, you must repeat steps 4 and 5, *and* steps 3 onwards for installing chrome-discord-bridge.
+The version on the Chrome Web Store may be older than the latest version available on GitHub.  See the [Development](#development) section below for building the latest from source.
 
 ### Installing chrome-discord-bridge
 
-1.  You will need to install [git](https://github.com/git-guides/install-git) and [Go](https://go.dev/dl/) 1.17 if they are not already installed on your system.
+These instructions assume experience with the terminal.
 
-2.  Clone the chrome-discord-bridge git repository:
+1.  Download the latest release of chrome-discord-bridge for your platform from its [GitHub releases page](https://github.com/p00ya/chrome-discord-bridge/releases).
 
-        git clone https://github.com/p00ya/chrome-discord-bridge.git
-        cd chrome-discord-bridge
+2.  Extract the archive with:
 
-3.  Remember the ID from step 5 of loading the extension?  It will be something like `nglhipbdoknhpejdpceibmeaohidgcod`.  Open the file `cmd/chrome-discord-bridge/origins.txt` in a text editor and add a line with that ID, like:
+        tar -xf chrome-discord-bridge_*.tar.xz
 
-        chrome-extension://nglhipbdoknhpejdpceibmeaohidgcod/
+    On macOS, you will also need to run:
 
-4.  Build the `chrome-discord-bridge` binary:
+        xattr -d com.apple.quarantine chrome-discord-bridge
 
-        go build ./cmd/chrome-discord-bridge
+3.  Move the `chrome-discord-bridge` binary somewhere permanent.
 
-5.  The previous command will produce a command-line program `chrome-discord-bridge`.  Then run:
+> :warning: WARNING: if you move the `chrome-discord-bridge` binary again later, you must repeat step 4.
+
+4.  Run:
 
         ./chrome-discord-bridge -install
 
@@ -47,11 +38,11 @@ This extension isn't published on the Chrome Web Store yet, so installation requ
 
 That's it - you don't need to run `chrome-discord-bridge` manually; Chrome will start it on demand.
 
-> :warning: WARNING: if you move the `chrome-discord-bridge` binary, you must repeat step 5.
-
 ## Usage
 
 For Browser Activity to work, you must be running the Discord desktop app (not the web app) and have chrome-discord-bridge installed (see above).
+
+> :warning: WARNING: if you're seeing a red badge on the extension item, it means the native apps aren't installed or running.
 
 In Google Chrome, open the Chrome extensions menu.  If Browser Activity is showing in the "No access needed" section of the menu, it means the extension doesn't support the site that's currently open in the tab.  Otherwise, you can enable Browser Activity for the tab by clicking the Browser Activity item in the menu.
 
@@ -68,23 +59,80 @@ Currently, the supported sites are:
  * https://monkeytype.com (typing page)
  * https://www.wanikani.com (lessons and reviews)
 
-> :warning: WARNING: if you're seeing a red badge on the extension item, it means the native apps aren't installed or running.
-
 ## Development
 
-The Browser Activity extension is written in TypeScript with ES6 modules, which is translated to javascript by ts-loader and webpack.  To get started, install Node.js and yarn, then fetch dependencies by running:
+The Browser Activity extension is written in TypeScript with ES6 modules, which is translated to javascript by ts-loader and webpack.  This means you need to build the source code before you can load the extension from Chrome.
+
+### Building and loading the extension
+
+These instructions assume you are familiar with the terminal, and have already installed [git](https://github.com/git-guides/install-git), [Node.js](https://nodejs.org/), and [yarn](https://yarnpkg.com/getting-started/install).
+
+Clone the repository:
+
+    git clone https://github.com/p00ya/browser-activity.git
+    cd browser-activity
+
+Fetch dependencies by running:
 
     yarn
 
-To build the extension continuously, run:
+Then run:
 
     yarn start
 
-To load the extension, navigate to chrome://extensions, enable Developer Mode, and click "Load unpacked".  Select the `dist` directory.
+to start a process that continuously monitors for changes to the source code and builds the extension to the `dist` directory.
+
+To load the extension in Chrome, navigate to chrome://extensions, enable Developer Mode, and click "Load unpacked".  Select the `dist` directory.
 
 Note the extension ID for Browser Activity that will now be visible in chrome://extensions.
 
-Now go install chrome-discord-bridge - see [installation instructions above](#installing-chrome-discord-bridge).
+For the unpacked extension to work, you will also have to build chrome-discord-bridge from source rather than use a pre-built binary.
+
+### Building chrome-discord-bridge
+
+Install [Go](https://go.dev/dl/) 1.17 if it's not already installed on your system.
+
+Clone the chrome-discord-bridge git repository:
+
+    git clone https://github.com/p00ya/chrome-discord-bridge.git
+    cd chrome-discord-bridge
+
+Remember the ID of the unpacked extension from chrome://extensions?  It will be something like `nglhipbdoknhpejdpceibmeaohidgcod`.  Open the file `cmd/chrome-discord-bridge/origins.txt` in a text editor and add a line with that ID, like:
+
+    chrome-extension://nglhipbdoknhpejdpceibmeaohidgcod/
+
+
+> :warning: WARNING: if the path to the unpacked extension changes, the Chrome extension ID may change and you must repeat this process with the new ID.
+
+Build the `chrome-discord-bridge` binary:
+
+    go build ./cmd/chrome-discord-bridge
+
+Run:
+
+    ./chrome-discord-bridge -install
+
+### Making changes to Browser Activity
+
+If you ran `yarn start` as above, then webpack will continuosly rebuild the extension whenever you make a change to the source.  To see the changes in Chrome, open chrome://extensions and click Browser Activity's ↻ (Reload) button.
+
+After making changes, test them with:
+
+    yarn test
+
+Check for style issues with:
+
+    yarn lint
+
+### Adding a Site Config
+
+I expect the most common modification to Browser Activity will be adding support for new sites.
+
+To do this, add a new JSON file corresponding to the site, for example `src/configs/example.json`.  The JSON should follow the `Config` interface documented in `src/index.d.ts`.  You can look at the existing JSON files in the `src/configs` directory for examples.
+
+Then modify `src/configs/index.ts` to import the new JSON file, and add it as a member of the `allConfigs` array.
+
+That's it!
 
 ## Differences from PreMiD
 
@@ -94,7 +142,7 @@ Browser Activity's functionality is similar to PreMiD.  Browser Activity (combin
 | PreMiD                          | Browser Activity + chrome-discord-bridge  |
 | ------------------------------- | ----------------------------------------- |
 | Works on many platforms         | Only tested on Chrome and macOS           |
-| Click to install                | Run commands to build and install         |
+| Click to install app            | Run commands to install                   |
 | App >500MB on disk              | chrome-discord-bridge <2MB on disk        |
 | >50MB RAM for app               | <1MB RAM for chrome-discord-bridge        |
 | App accesses system events      | No special permissions needed             |
