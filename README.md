@@ -42,11 +42,11 @@ That's it - you don't need to run `chrome-discord-bridge` manually; Chrome will 
 
 For Browser Activity to work, you must be running the Discord desktop app (not the web app) and have chrome-discord-bridge installed (see above).
 
-> :warning: WARNING: if you're seeing a red badge on the extension item, it means the native apps aren't installed or running.
+> ⚠️ WARNING: if you're seeing a red badge on the extension item, it means the native apps aren't installed or running.
 
 In Google Chrome, open the Chrome extensions menu.  If Browser Activity is showing in the "No access needed" section of the menu, it means the extension doesn't support the site that's currently open in the tab.  Otherwise, you can enable Browser Activity for the tab by clicking the Browser Activity item in the menu.
 
-> :sunglasses: NOTE: the extension doesn't have access to any of your browsing activity other than the tabs you've explicitly enabled it for.
+> 😎 NOTE: the extension doesn't have access to any of your browsing activity other than the tabs you've explicitly enabled it for.
 
 After it's enabled for a tab, the Browser Activity icon in the extensions menu will have a purple badge on it.  If the page satisfies particular rules, an activity message corresponding to what you're doing on the page will be sent to Discord.
 
