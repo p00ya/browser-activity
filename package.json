@@ -2,7 +2,8 @@
   "name": "browser-activity",
   "version": "1.0.0",
   "description": "Chrome extension to publish browser activity to Discord's Rich Presence",
-  "repository": "https://github.com/p00ya/browser-activity",
+  "homepage": "https://p00ya.github.io/browser-activity",
+  "repository": "github:p00ya/browser-activity",
   "author": "Dean Scarff https://github.com/p00ya",
   "license": "MPL-2.0",
   "devDependencies": {
