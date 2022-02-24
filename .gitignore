@@ -1,6 +1,6 @@
 .DS_Store
+browser-activity.zip
 dist.*
 dist
 node_modules
 yarn-error.log
-
