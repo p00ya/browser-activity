@@ -40,6 +40,7 @@
     "start-lint": "nodemon --watch src --ext js,ts --exec 'eslint src'",
     "svg2png": "cd src/img ; inkscape -o icon-128.png -C icon-large.svg ; inkscape -d 36 -o icon-48.png -C icon-small.svg ; inkscape -d 24 -o icon-32.png -C icon-small.svg",
     "test": "jest",
+    "prerelease": "webpack --config webpack.prod.js",
     "release": "cd dist && zip -o ../browser-activity.zip *"
   }
 }
