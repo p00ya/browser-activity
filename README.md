@@ -34,7 +34,7 @@ These instructions assume experience with the terminal.
 
         ./chrome-discord-bridge -install
 
-    This will write a file `io.github.p00ya.cdb.json` to Google Chrome's user configuration directory (the location varies between operating systems).
+    This will write a file `io.github.p00ya.cdb.json` to Google Chrome's user configuration directory (the location varies between operating systems).  On Windows, it will write the file to the working directory, and then add an entry to the Windows registry.  See the [Chrome documentation](https://developer.chrome.com/docs/apps/nativeMessaging/#native-messaging-host-location) for locations.
 
 That's it - you don't need to run `chrome-discord-bridge` manually; Chrome will start it on demand.
 
@@ -67,7 +67,7 @@ Browser Activity's functionality is similar to PreMiD.  Browser Activity (combin
 
 | PreMiD                          | Browser Activity + chrome-discord-bridge  |
 | ------------------------------- | ----------------------------------------- |
-| Works on many platforms         | Only tested on Chrome and macOS           |
+| Works on many browsers          | Only tested on Chrome                     |
 | Click to install app            | Run commands to install                   |
 | App >500MB on disk              | chrome-discord-bridge <2MB on disk        |
 | >50MB RAM for app               | <1MB RAM for chrome-discord-bridge        |
@@ -100,7 +100,5 @@ Disadvantages:
  -  You have to opt-in publishing activity to Discord for a particular tab.
 
  -  Only tested on recent Chrome builds.
-
- -  Only tested on macOS.
 
  -  Need to run command-line tools to build and install.
