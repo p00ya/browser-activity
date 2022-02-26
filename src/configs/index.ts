@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 import * as boardgamearena from './boardgamearena.json';
 import * as dominiononline from './dominiononline.json';
 import * as monkeytype from './monkeytype.json';

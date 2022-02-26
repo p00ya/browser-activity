@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 // Fields in UrlFilter have the same semantics as chrome.events.UrlFilter.
 // The URL must match all specified fields.
 interface UrlFilter {

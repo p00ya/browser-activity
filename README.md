@@ -2,6 +2,12 @@
 
 Browser Activity is a Chrome extension to publish website browsing activity to Discord's activity status (also known as "Rich Presence").  It will publish activity from particular Chrome tabs that you enable.  That activity will be visible to your Discord friends and other users on the same Discord servers as you.
 
+## License
+
+Copyright 2022, Dean Scarff.
+
+Browser Activity (including all code in this repository) is subject to the terms of the Mozilla Public License, v. 2.0.  You can obtain a copy of the MPL at https://mozilla.org/MPL/2.0/.
+
 ## Usage and Installation
 
 See the [User Documentation](https://p00ya.github.io/browser-activity) for instructions on how to install the Chrome extension and chrome-discord-bridge.  The User Documentation also contains information on usage, and a comparison to PreMiD.

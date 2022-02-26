@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 // Entry point for the Chrome extension service worker.
 
 import * as configs from '../configs';

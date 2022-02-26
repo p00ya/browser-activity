@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 /** Provides lookups for configs. */
 export default class ConfigIndex {
   readonly #map: { [host: string]: Config };

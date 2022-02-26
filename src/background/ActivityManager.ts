@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 import DiscordClient, { IDiscordClient } from './DiscordClient';
 
 export type ClientFactory = (clientId: string) => Promise<IDiscordClient>;

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 const TerserPlugin = require('terser-webpack-plugin');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common');

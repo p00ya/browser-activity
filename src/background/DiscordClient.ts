@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 // Sets activity on Discord via the chrome-discord-bridge.
 
 // chrome-discord-bridge should be installed using this name.

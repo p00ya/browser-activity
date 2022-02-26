@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 import { chrome } from 'jest-chrome';
 import { mockDeep } from 'jest-mock-extended';
 import DiscordClient from './DiscordClient';

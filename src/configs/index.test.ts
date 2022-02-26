@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 import * as configs from './index';
 
 const testConfigs: readonly Config[] = [

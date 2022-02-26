@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 // Sets up linting for configuration files (*.js).
 // Linting for the actual source files is controlled separately from
 // src/.eslintrc.js.

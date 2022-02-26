@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
   preset: 'ts-jest/presets/default-esm',

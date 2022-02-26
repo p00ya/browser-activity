@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+
 import { JSDOM } from 'jsdom';
 import content from './index';
 
