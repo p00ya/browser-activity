@@ -4,6 +4,11 @@ const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
+
+// Copyright notice to prefix to the output.
+const copyrightNotice = 'Copyright 2022, Dean Scarff.';
 
 module.exports = {
   entry: {
@@ -25,6 +30,25 @@ module.exports = {
     ],
   },
   output: { filename: '[name].js', path: path.resolve(__dirname, 'dist') },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin(
+      {
+        terserOptions: {
+          ecma: 2019,
+          compress: {
+            passes: 2,
+          },
+          output: {
+            // Minification is applied after BannerPlugin, so make sure to
+            // preserve the copyright notice.  The "!" is added by BannerPlugin.
+            comments: /^! Copyright/,
+          },
+        },
+        extractComments: false,
+      },
+    )],
+  },
   plugins: [
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
     new CopyWebpackPlugin({
@@ -34,6 +58,7 @@ module.exports = {
       ],
     }),
     new ForkTsCheckerWebpackPlugin(),
+    new webpack.BannerPlugin(copyrightNotice),
   ],
   resolve: {
     extensions: ['.ts'],
