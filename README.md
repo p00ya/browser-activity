@@ -28,7 +28,7 @@ These instructions assume experience with the terminal.
 
 3.  Move the `chrome-discord-bridge` binary somewhere permanent.
 
-> :warning: WARNING: if you move the `chrome-discord-bridge` binary again later, you must repeat step 4.
+> ⚠️ WARNING: if you move the `chrome-discord-bridge` binary again later, you must repeat step 4.
 
 4.  Run:
 
