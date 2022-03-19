@@ -123,9 +123,6 @@ describe('ActivityManager', () => {
 });
 
 test('ActivityManager repeated setActivity', async () => {
-  // Promise resolution functions for mockClient.sendActivity calls.
-  const sendActivityResolvers: Array<(result: any) => void> = [];
-
   const mockClient: MockClient = {
     clientId: 'TestClientId',
     connected: true,
@@ -137,7 +134,12 @@ test('ActivityManager repeated setActivity', async () => {
   };
   mockClient.sendHandshake.mockReturnValue(Promise.resolve({ cmd: 'DISPATCH' }));
   mockClient.sendActivity.mockImplementation(() => new Promise((resolve) => {
-    sendActivityResolvers.push(resolve);
+    resolve({
+      cmd: 'SET_ACTIVITY',
+      data: {
+        state: 'test activity',
+      },
+    });
   }));
 
   const clientFactory = jest.fn() as jest.MockedFunction<ClientFactory>;
@@ -154,16 +156,6 @@ test('ActivityManager repeated setActivity', async () => {
     expect(mockClient.sendHandshake).toHaveBeenCalledTimes(1);
     expect(mockClient.sendActivity).toHaveBeenCalledTimes(1);
   }
-
-  expect(sendActivityResolvers).toHaveLength(1);
-  (sendActivityResolvers.pop()!)(
-    {
-      cmd: 'SET_ACTIVITY',
-      data: {
-        state: 'test activity',
-      },
-    },
-  );
 
   // Second call should resolve without any further requests to Discord.
   await wait2;

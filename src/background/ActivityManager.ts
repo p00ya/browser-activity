@@ -36,19 +36,26 @@ export default class ActivityManager {
    * If there's an outstanding request, don't do anything yet.  When that
    * request returns, only the parameters from the last call to setActivity()
    * will be used.
+   *
+   * Returns a promise that is resolved or rejected when the update actually
+   * runs.
    */
   setActivity(clientId: string, activity: string) {
     this.#nextActivity = { clientId, activity };
-    this.#waiting = this.#waiting.then(() => {
-      if (this.#nextActivity !== undefined) {
-        this.#waiting = this.maybeConnectAndSend(
-          this.#nextActivity.clientId,
-          this.#nextActivity.activity,
-        );
-        this.#nextActivity = undefined;
-      }
-    }).catch((e) => {
-      console.warn(`Error in maybeConnectAndSend: ${e}`);
+
+    const outstanding = this.#waiting;
+    this.#waiting = new Promise<void>((resolve, reject) => {
+      outstanding.then(() => {
+        if (this.#nextActivity !== undefined) {
+          this.maybeConnectAndSend(
+            this.#nextActivity.clientId,
+            this.#nextActivity.activity,
+          ).then(resolve, reject);
+          this.#nextActivity = undefined;
+        } else {
+          resolve();
+        }
+      });
     });
     return this.#waiting;
   }

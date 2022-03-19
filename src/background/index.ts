@@ -21,8 +21,11 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-const clearActivity = function clearActivity(isEnabled: boolean, tabId: number) {
-  activityManager.clearActivity();
+const setWaitingBadge = function setWaitingBadge(isEnabled: boolean, tabId: number) {
+  chrome.action.setTitle({
+    tabId,
+    title: 'Waiting to publish this tab\'s activity to Discord.',
+  });
   chrome.action.setBadgeBackgroundColor({ color: badgeActiveColour });
   chrome.action.setBadgeText({
     text: isEnabled ? ' ' : '', // empty string clears the badge
@@ -30,25 +33,42 @@ const clearActivity = function clearActivity(isEnabled: boolean, tabId: number) 
   });
 };
 
+const setErrorBadge = function setErrorBadge(tabId: number) {
+  chrome.action.setTitle({
+    title: 'Browser Activity could not connect to Discord; '
+        + 'check chrome-discord-bridge is installed and Discord is running.',
+    tabId,
+  });
+  chrome.action.setBadgeBackgroundColor({ color: badgeWarningColour });
+  chrome.action.setBadgeText({
+    text: ':-(',
+    tabId,
+  });
+};
+
+const setStatusBadge = function setStatusBadge(state: string, tabId: number) {
+  chrome.action.setTitle({
+    title: `Publishing status to Discord: "${state}".`,
+    tabId,
+  });
+  chrome.action.setBadgeText({
+    text: ':-)',
+    tabId,
+  });
+  chrome.action.setBadgeBackgroundColor({ color: badgeActiveColour });
+};
+
+const clearActivity = function clearActivity(isEnabled: boolean, tabId: number) {
+  activityManager.clearActivity();
+  setWaitingBadge(isEnabled, tabId);
+};
+
 const setActivity = function setActivity(clientId: string, state: string, tabId: number) {
   return activityManager.setActivity(clientId, state).then(() => {
-    chrome.action.setBadgeText({
-      text: ':-)',
-      tabId,
-    });
-    chrome.action.setBadgeBackgroundColor({ color: badgeActiveColour });
-  }).catch((e) => {
+    setStatusBadge(state, tabId);
+  }, (e) => {
     console.warn(e);
-    chrome.action.setTitle({
-      title: 'Could not connect to Discord; '
-          + 'check chrome-discord-bridge is installed and Discord is running',
-      tabId,
-    });
-    chrome.action.setBadgeBackgroundColor({ color: badgeWarningColour });
-    chrome.action.setBadgeText({
-      text: ':-(',
-      tabId,
-    });
+    setErrorBadge(tabId);
   });
 };
 
@@ -153,9 +173,5 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // Immediately attempt to publish when the user opts-in to publishing for the
 // active tab.
 chrome.action.onClicked.addListener((tab) => {
-  chrome.action.setTitle({
-    tabId: tab.id,
-    title: 'This tab\'s activity is being published to Discord',
-  });
   inject(tab);
 });

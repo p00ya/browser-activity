@@ -82,7 +82,8 @@ export default class DiscordClient implements IDiscordClient {
     });
 
     this.#port.onDisconnect.addListener(() => {
-      this.rejectAll('host disconnected');
+      const msg = chrome.runtime.lastError?.message ?? 'Host disconnected';
+      this.rejectAll(msg);
       this.connected = false;
     });
   }
