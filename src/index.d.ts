@@ -66,8 +66,15 @@ interface SetActivityCommand {
   activityState: string;
 }
 
-// Message from the content script to the service worker.
-interface ContentRequest {
+// A message from the service worker to the content script.  A ContentMessage
+// is expected in response.
+interface BackgroundMessage {
+  config?: Config;
+}
+
+// Message from the content script to the service worker.  No response is
+// expected.
+interface ContentMessage {
   clearActivity?: ClearActivityCommand;
   setActivity?: SetActivityCommand;
 }

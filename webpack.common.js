@@ -13,6 +13,7 @@ const copyrightNotice = 'Copyright 2022, Dean Scarff.';
 module.exports = {
   entry: {
     background: './src/background/index.ts',
+    content: './src/content/index.ts',
   },
   module: {
     rules: [
