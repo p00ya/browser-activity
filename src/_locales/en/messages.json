@@ -1,0 +1,32 @@
+{
+  "extName": {
+    "message": "Browser Activity",
+    "description": "Name of the extension in the manifest."
+  },
+  "extDescription": {
+    "message": "Publish browser activity to Discord's Rich Presence",
+    "description": "Description of the extension in the manifest."
+  },
+  "defaultTitle": {
+    "message": "Publish this tab's activity to Discord.",
+    "description": "Tooltip for the extension button when it's not active."
+  },
+  "waitingTitle": {
+    "message": "Waiting to publish this tab's activity to Discord.",
+    "descritpion": "Tooltip for the extension when the extension is active but there isn't an activity to publish yet."
+  },
+  "errorTitle": {
+    "message": "Browser Activity could not connect to Discord; check chrome-discord-bridge is installed and Discord is running.",
+    "description": "Tooltip for the extension button when there was an error connecting to the Discord desktop app."
+  },
+  "statusTitle": {
+    "message": "Publishing status to Discord: $state$.",
+    "description": "Tooltip for the extension button when it's publishing an activity.",
+    "placeholders": {
+      "state": {
+        "content": "$1",
+        "example": "Playing chess"
+      }
+    }
+  }
+}

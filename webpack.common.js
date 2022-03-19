@@ -56,6 +56,11 @@ module.exports = {
       patterns: [
         { from: './src/manifest.json' },
         { from: './src/img/icon-*.png', to: '[name][ext]' },
+        {
+          context: path.resolve(__dirname, 'src'),
+          from: '_locales/*/messages.json',
+          to: '[path][name][ext]',
+        },
       ],
     }),
     new ForkTsCheckerWebpackPlugin(),

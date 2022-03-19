@@ -24,7 +24,7 @@ chrome.runtime.onInstalled.addListener(() => {
 const setWaitingBadge = function setWaitingBadge(isEnabled: boolean, tabId: number) {
   chrome.action.setTitle({
     tabId,
-    title: 'Waiting to publish this tab\'s activity to Discord.',
+    title: chrome.i18n.getMessage('waitingTitle'),
   });
   chrome.action.setBadgeBackgroundColor({ color: badgeActiveColour });
   chrome.action.setBadgeText({
@@ -35,8 +35,7 @@ const setWaitingBadge = function setWaitingBadge(isEnabled: boolean, tabId: numb
 
 const setErrorBadge = function setErrorBadge(tabId: number) {
   chrome.action.setTitle({
-    title: 'Browser Activity could not connect to Discord; '
-        + 'check chrome-discord-bridge is installed and Discord is running.',
+    title: chrome.i18n.getMessage('errorTitle'),
     tabId,
   });
   chrome.action.setBadgeBackgroundColor({ color: badgeWarningColour });
@@ -48,7 +47,7 @@ const setErrorBadge = function setErrorBadge(tabId: number) {
 
 const setStatusBadge = function setStatusBadge(state: string, tabId: number) {
   chrome.action.setTitle({
-    title: `Publishing status to Discord: "${state}".`,
+    title: chrome.i18n.getMessage('statusTitle', state),
     tabId,
   });
   chrome.action.setBadgeText({
