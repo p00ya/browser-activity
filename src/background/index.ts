@@ -162,9 +162,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // it's not the active tab.
     return;
   }
-  if (changeInfo.status !== 'complete') {
-    // Chrome fires multiple onUpdated events when a tab navigates.
-    // Wait for the one that indicates loading is complete.
+  if (changeInfo.status !== 'complete' && changeInfo.url === undefined) {
+    // Chrome can fire multiple onUpdated events when a tab navigates, ending
+    // in a 'complete' status.
+    //
+    // However, for pages using History.pushState for navigation, only a
+    // single change with a 'loading' status and a URL fires.
     return;
   }
   sendBackgroundRequest(tab.id);
