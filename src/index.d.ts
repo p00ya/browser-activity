@@ -39,6 +39,24 @@ interface ActivityRule {
   };
 }
 
+// MutationObserver.observe configuration.
+interface ObserverRule {
+  // A CSS selector for the node to observe.
+  selector?: string;
+
+  // The element ID of the node to observe.
+  id?: string;
+
+  // Identical to the options parameter of MutationObserver.observe.
+  options: {
+    subtree?: boolean;
+    childList?: boolean;
+    attributes?: boolean;
+    attributeFilter?: string[];
+    characterData?: boolean;
+  }
+}
+
 // Configuration for mapping a particular website to activity states.
 interface Config {
   // The host for this config.  Rules will only be evaluated for configs with
@@ -56,6 +74,10 @@ interface Config {
   // A list of rules that will be matched against the page content.  The first
   // to match will be used to set the status.
   activityRules: ActivityRule[];
+
+  // Mutations to observe.  If one matches, then all the observation and
+  // activity rules will be re-evaluated.
+  observerRules: ObserverRule[];
 }
 
 interface ClearActivityCommand {

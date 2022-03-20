@@ -21,5 +21,6 @@
       "hasSelector": ".game-page",
       "activityStateLiteral": "In game"
     }
-  ]
+  ],
+  "observerRules": []
 }

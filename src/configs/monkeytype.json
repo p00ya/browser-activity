@@ -21,5 +21,19 @@
         "urlEquals": "https://monkeytype.com/"
       }
     }
+  ],
+  "observerRules": [
+    {
+      "selector": "#words .word",
+      "options": {
+        "childList": true
+      }
+    },
+    {
+      "id": "result",
+      "options": {
+        "attributes": true
+      }
+    }
   ]
 }

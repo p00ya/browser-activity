@@ -139,6 +139,15 @@ const sendBackgroundRequest = function sendBackgroundRequest(tabId: number) {
   });
 };
 
+// Listen for activity updates triggered from the content scripts.
+chrome.runtime.onConnect.addListener((port) => {
+  port.onMessage.addListener((request) => {
+    if (port.sender?.tab?.id !== undefined) {
+      handleContentMessage(request, port.sender.tab.id);
+    }
+  });
+});
+
 // Update activity when the active tab changes.
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);

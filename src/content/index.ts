@@ -83,12 +83,66 @@ export const makeContentMessage = function makeContentMessage(
   };
 };
 
+/**
+ * Configures the observer to listen to changes to elements according to the
+ * rules in the config.
+ */
+export const observeMutations = function observeMutations(
+  config: Config,
+  observer: MutationObserver,
+) {
+  config.observerRules.forEach((rule) => {
+    const { selector, id, options } = rule;
+    let element = null;
+    if (id !== undefined) {
+      element = document.getElementById(id);
+    } else if (selector !== undefined) {
+      element = document.querySelector(selector);
+    }
+
+    if (element !== null) {
+      observer.observe(element, options);
+    }
+  });
+};
+
+/** Publish the activity state to the service worker. */
+const maybePostActivity = function maybePostActivity(
+  config: Config,
+  port: chrome.runtime.Port,
+) {
+  const activity = getActivity(config, document);
+  const msg = makeContentMessage(config.discordClientId, activity);
+  try {
+    port.postMessage(msg);
+  } catch (e) {
+    console.warn(e);
+  }
+};
+
+/**
+ * Returns a callback suitable for MutationObserver.observe that
+ * posts an activity update.
+ */
+const onMutation = function onMutation(config: Config, port: chrome.runtime.Port) {
+  return (_: any[], observer: MutationObserver) => {
+    // Reset the observer, because the new page content may include elements
+    // from the observationRules that previously weren't present.
+    observer.disconnect();
+    observeMutations(config, observer);
+
+    // Update activity.
+    maybePostActivity(config, port);
+  };
+};
+
 /** Config for this tab; does not change after initialization. */
-const config: Config = {
+const cachedConfig: Config = {
   hosts: [],
   discordClientId: '',
   showActionConditions: [],
   activityRules: [],
+  observerRules: [],
 };
 
 // Listen for messages from the service worker.
@@ -100,11 +154,25 @@ chrome.runtime.onMessage.addListener(
     const request: BackgroundMessage = msg;
 
     if (request.config !== undefined) {
-      Object.assign(config, request.config);
+      Object.assign(cachedConfig, request.config);
+
+      // In addition to responding to activity requests from the background
+      // script (via onMessage), this content script can also initiate activity
+      // updates (triggered through observed mutations).
+      const port = chrome.runtime.connect();
+      const observer = new MutationObserver(onMutation(cachedConfig, port));
+
+      // When the background extension is reloaded, this content script (and the
+      // MutationObserver) will be orphaned, so disconnect them.
+      port.onDisconnect.addListener(() => {
+        observer.disconnect();
+      });
+
+      observeMutations(cachedConfig, observer);
     }
 
-    const activity = getActivity(config, document);
-    sendResponse(makeContentMessage(config.discordClientId, activity));
+    const activity = getActivity(cachedConfig, document);
+    sendResponse(makeContentMessage(cachedConfig.discordClientId, activity));
 
     return true; // Don't wait for sendResponse.
   },

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 import { chrome } from 'jest-chrome';
+import { mockDeep } from 'jest-mock-extended';
 import { JSDOM } from 'jsdom';
 import * as content from './index';
 
@@ -82,6 +83,7 @@ describe('getActivity with hasSelector', () => {
         },
       },
     ],
+    observerRules: [],
   };
 
   beforeEach(() => {
@@ -112,6 +114,7 @@ describe('getActivity with activityStateFromId', () => {
         },
       },
     ],
+    observerRules: [],
   };
 
   beforeEach(() => {
@@ -145,6 +148,7 @@ describe('getActivity with activityStateFromSelector', () => {
         },
       },
     ],
+    observerRules: [],
   };
 
   beforeEach(() => {
@@ -189,6 +193,7 @@ test('getActivity first rule of many wins', () => {
         },
       },
     ],
+    observerRules: [],
   };
 
   jsdom.reconfigure({ url: 'https://example.com/page' });
@@ -219,7 +224,59 @@ describe('makeContentMessage', () => {
   });
 });
 
-test('messaging integration test', () => {
+describe('observeMutations', () => {
+  it('with id', () => {
+    const options = {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['foo'],
+      characterData: true,
+    };
+    const config: Config = {
+      hosts: [],
+      discordClientId: '',
+      showActionConditions: [],
+      activityRules: [],
+      observerRules: [
+        {
+          id: 'test',
+          options,
+        },
+      ],
+    };
+    global.document.body.innerHTML = '<div id="test">TestState</div>';
+    const id = global.document.getElementById('test');
+    const observer = new MutationObserver(() => {});
+    const spy = jest.spyOn(observer, 'observe');
+    content.observeMutations(config, observer);
+    expect(spy).toHaveBeenCalledWith(id, options);
+  });
+
+  it('with selector', () => {
+    const config: Config = {
+      hosts: [],
+      discordClientId: '',
+      showActionConditions: [],
+      activityRules: [],
+      observerRules: [
+        {
+          selector: '#test',
+          options: { childList: true },
+        },
+      ],
+    };
+    global.document.body.innerHTML = '<div id="test">TestState</div>';
+    const id = global.document.getElementById('test');
+    const observer = new MutationObserver(() => {});
+    const spy = jest.spyOn(observer, 'observe');
+    content.observeMutations(config, observer);
+    expect(spy).toHaveBeenCalledWith(id, { childList: true });
+  });
+});
+
+test('incoming messaging integration test', () => {
+  jsdom.reconfigure({ url: pageUrl });
   const config: Config = {
     hosts: [],
     discordClientId: 'TestClientId',
@@ -232,7 +289,11 @@ test('messaging integration test', () => {
         },
       },
     ],
+    observerRules: [],
   };
+
+  const mockPort = mockDeep<chrome.runtime.Port>();
+  chrome.runtime.connect.mockReturnValue(mockPort);
 
   // Listener should already be registered as a side-effect of loading the
   // content module.
@@ -264,4 +325,62 @@ test('messaging integration test', () => {
     sendResponse,
   );
   expect(sendResponse).toBeCalledWith(expectedResponse);
+});
+
+test('MutationObserver integration test', async () => {
+  jsdom.reconfigure({ url: pageUrl });
+  global.document.body.innerHTML = '<div id="test">TestState</div>';
+
+  const config: Config = {
+    hosts: [],
+    discordClientId: 'TestClientId',
+    showActionConditions: [],
+    activityRules: [
+      {
+        activityStateFromId: 'test',
+        pageUrl: {
+          urlEquals: pageUrl,
+        },
+      },
+    ],
+    observerRules: [
+      {
+        id: 'test',
+        options: {
+          childList: true,
+        },
+      },
+    ],
+  };
+
+  const mockPort = mockDeep<chrome.runtime.Port>();
+  chrome.runtime.connect.mockReturnValue(mockPort);
+
+  const sendResponse = jest.fn() as jest.MockedFunction<() => any>;
+
+  // Simulate the service worker initializing the content script with a config.
+  chrome.runtime.onMessage.callListeners(
+    { config },
+    /* sender */ { },
+    sendResponse,
+  );
+
+  expect(mockPort.onDisconnect.addListener).toBeCalledTimes(1);
+
+  // Trigger a mutation on the observed element.
+  const node = global.document.getElementById('test')!;
+  const text = global.document.createTextNode('Foo');
+  node.appendChild(text);
+
+  // Wait for MutationObserver to fire in the background.
+  await 0;
+
+  expect(mockPort.postMessage).toBeCalledWith({
+    setActivity: {
+      clientId: 'TestClientId',
+      activityState: 'TestStateFoo',
+    },
+  });
+
+  mockPort.onDisconnect.addListener.mock.calls[0][0](mockPort);
 });

@@ -19,6 +19,7 @@ const testConfigs: readonly Config[] = [
       },
     ],
     activityRules: [],
+    observerRules: [],
   },
   {
     hosts: [
@@ -36,6 +37,7 @@ const testConfigs: readonly Config[] = [
       },
     ],
     activityRules: [],
+    observerRules: [],
   },
 ];
 
