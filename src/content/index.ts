@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
+const regexpCache = new Map<string, RegExp>();
+
 /** Whether the given document matches the filter. */
 export const filterMatches = function filterMatches(
   filter: UrlFilter,
@@ -14,8 +16,12 @@ export const filterMatches = function filterMatches(
   }
 
   if (filter.urlMatches !== undefined) {
-    // TODO: cache the compiled RegExps.
-    const regexp = new RegExp(filter.urlMatches);
+    const str = filter.urlMatches;
+    let regexp = regexpCache.get(str);
+    if (regexp === undefined) {
+      regexp = new RegExp(str);
+      regexpCache.set(str, regexp);
+    }
     return regexp.test(urlNoHash);
   }
 
