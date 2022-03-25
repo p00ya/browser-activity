@@ -10,7 +10,7 @@ You will need to install both the Chrome extension and the native chrome-discord
 
 The easiest way to install the extension is from the [Chrome Web Store](https://chrome.google.com/webstore/detail/browser-activity/cemkhompnmfhdjkkmodjhlgomcmddefi).
 
-The version on the Chrome Web Store may be older than the latest version available on GitHub.  See the [Development](#development) section below for building the latest from source.
+The version on the Chrome Web Store may be older than the latest version available on GitHub.  See the [GitHub repo](https://github.com/p00ya/browser-activity) for building the latest from source.
 
 ### Installing chrome-discord-bridge
 
