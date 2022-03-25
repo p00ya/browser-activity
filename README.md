@@ -81,7 +81,7 @@ Check for style issues with:
 
 I expect the most common modification to Browser Activity will be adding support for new sites.
 
-To do this, add a new JSON file corresponding to the site, for example `src/configs/example.json`.  The JSON should follow the `Config` interface documented in `src/index.d.ts`.  You can look at the existing JSON files in the `src/configs` directory for examples.
+To do this, add a new JSON file corresponding to the site, for example `src/configs/example.json`.  The JSON should follow the `Config` interface documented in `src/configs/index.d.ts`.  You can look at the existing JSON files in the `src/configs` directory for examples.
 
 Then modify `src/configs/index.ts` to import the new JSON file, and add it as a member of the `allConfigs` array.
 
