@@ -1,17 +1,22 @@
 // SPDX-License-Identifier: MPL-2.0
 
-import { chrome } from 'jest-chrome';
 import { mockDeep } from 'jest-mock-extended';
+import chromeMock from '../testutils/chromeMock';
 import DiscordClient from './DiscordClient';
 
-test('connect creates port', () => DiscordClient.connect('TestClient').then(() => {
-  expect(chrome.runtime.connectNative)
+test('connect creates port', async () => {
+  const mockPort = mockDeep<chrome.runtime.Port>();
+  chromeMock.runtime.connectNative.mockReturnValue(mockPort);
+
+  await DiscordClient.connect('TestClient');
+  expect(chromeMock.runtime.connectNative)
     .toHaveBeenCalledWith('io.github.p00ya.cdb');
-}));
+});
 
 describe('DiscordClient', () => {
   const mockPort = mockDeep<chrome.runtime.Port>();
-  chrome.runtime.connectNative.mockReturnValue(mockPort);
+  chromeMock.runtime.connectNative.mockReturnValue(mockPort);
+
   const client = new DiscordClient('TestClient', mockPort);
   const [[onMessage]] = mockPort.onMessage.addListener.mock.calls;
 
@@ -59,7 +64,7 @@ describe('DiscordClient', () => {
 
 describe('DiscordClient broken port', () => {
   const mockPort = mockDeep<chrome.runtime.Port>();
-  chrome.runtime.connectNative.mockReturnValue(mockPort);
+  chromeMock.runtime.connectNative.mockReturnValue(mockPort);
   const client = new DiscordClient('TestClient', mockPort);
   const [[onDisconnect]] = mockPort.onDisconnect.addListener.mock.calls;
 

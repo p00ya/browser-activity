@@ -70,9 +70,6 @@ test('getConditions', () => {
 });
 
 test('makeRules', () => {
-  chrome.declarativeContent.ShowAction = jest.fn();
-  chrome.declarativeContent.PageStateMatcher = jest.fn();
-
   const rules = configs.makeRules(testConditions);
   expect(rules.length).toBe(2);
 });

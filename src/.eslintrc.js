@@ -37,6 +37,11 @@ module.exports = {
         // on parameter properties because they don't support #name for private
         // properties.
         '@typescript-eslint/no-parameter-properties': 'error',
+        // Don't complain about dependencies for test-only code.
+        'import/no-extraneous-dependencies': [
+          'error',
+          { devDependencies: ['**/*.test.ts', 'src/testutils/*.ts'] },
+        ],
       },
     },
   ],

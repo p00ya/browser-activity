@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 
-import { chrome } from 'jest-chrome';
 import { mockDeep } from 'jest-mock-extended';
 import { JSDOM } from 'jsdom';
+import chromeMock from '../testutils/chromeMock';
 import * as content from './index';
 
 // See: https://github.com/simon360/jest-environment-jsdom-global/issues/5#issuecomment-508749508
@@ -293,20 +293,19 @@ test('incoming messaging integration test', () => {
   };
 
   const mockPort = mockDeep<chrome.runtime.Port>();
-  chrome.runtime.connect.mockReturnValue(mockPort);
+  chromeMock.runtime.connect.mockReturnValue(mockPort);
 
   // Listener should already be registered as a side-effect of loading the
   // content module.
-  expect(chrome.runtime.onMessage.hasListeners()).toBe(true);
+  expect(chrome.runtime.onMessage.addListener).toHaveBeenCalled();
 
   const sendResponse = jest.fn() as jest.MockedFunction<() => any>;
 
   // Simulate the service worker initializing the content script with a config.
-  chrome.runtime.onMessage.callListeners(
-    { config },
-    /* sender */ { },
-    sendResponse,
-  );
+  chromeMock.runtime.onMessage.addListener.mock.calls.forEach((args: [any]) => {
+    const [listener] = args;
+    listener(/* msg */ { config }, /* sender */ { }, sendResponse);
+  });
 
   const expectedResponse: ContentMessage = {
     setActivity: {
@@ -319,11 +318,10 @@ test('incoming messaging integration test', () => {
   sendResponse.mockClear();
 
   // Simulate the service worker requesting an activity update.
-  chrome.runtime.onMessage.callListeners(
-    { },
-    /* sender */ { },
-    sendResponse,
-  );
+  chromeMock.runtime.onMessage.addListener.mock.calls.forEach((args: [any]) => {
+    const [listener] = args;
+    listener(/* msg */ { config }, /* sender */ { }, sendResponse);
+  });
   expect(sendResponse).toBeCalledWith(expectedResponse);
 });
 
@@ -354,16 +352,15 @@ test('MutationObserver integration test', async () => {
   };
 
   const mockPort = mockDeep<chrome.runtime.Port>();
-  chrome.runtime.connect.mockReturnValue(mockPort);
+  chromeMock.runtime.connect.mockReturnValue(mockPort);
 
   const sendResponse = jest.fn() as jest.MockedFunction<() => any>;
 
   // Simulate the service worker initializing the content script with a config.
-  chrome.runtime.onMessage.callListeners(
-    { config },
-    /* sender */ { },
-    sendResponse,
-  );
+  chromeMock.runtime.onMessage.addListener.mock.calls.forEach((args: [any]) => {
+    const [listener] = args;
+    listener(/* msg */ { config }, /* sender */ { }, sendResponse);
+  });
 
   expect(mockPort.onDisconnect.addListener).toBeCalledTimes(1);
 

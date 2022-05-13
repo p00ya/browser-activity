@@ -21,7 +21,6 @@
     "eslint-plugin-jsonc": "^2.1.0",
     "fork-ts-checker-webpack-plugin": "^7.2.1",
     "jest": "^27.4.0",
-    "jest-chrome": "^0.7.2",
     "jest-environment-jsdom": "^27.4.0",
     "jest-environment-jsdom-global": "^3.0.0",
     "jest-mock-extended": "^2.0.4",
